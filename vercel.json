@@ -4,6 +4,7 @@
       "src": "package.json",
       "use": "@vercel/next"
     }
-  ]
-  
+  ],
+  "cleanUrls": true,
+  "ignoreCommand": "find app/api/auth/\\[...nextauth\\] -type d -exec rm -rf {} \\; 2>/dev/null || true"
 }
