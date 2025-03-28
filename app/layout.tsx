@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Roboto_Mono } from "next/font/google";
 import { auth } from "@/auth";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
@@ -8,16 +7,6 @@ import { Toaster } from "@/components/ui/toast";
 import ToastProvider from "@/components/ToastProvider";
 
 // comments
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Job Portal - Find Your Next Career Opportunity",
@@ -32,7 +21,7 @@ export default async function RootLayout({
   const session = await auth();
   
   return (
-    <html lang="en" className={`${inter.variable} ${robotoMono.variable} font-sans`}>
+    <html lang="en" className="font-sans">
       <body className="antialiased min-h-screen flex flex-col">
         <SessionProvider session={session}>
           {/* Navbar is included here but will be loaded client-side */}
