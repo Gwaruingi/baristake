@@ -6,6 +6,6 @@
     }
   ],
   "cleanUrls": true,
-  "ignoreCommand": "echo 'Removing conflicting files...'",
+  "ignoreCommand": "node scripts/fix-auth-conflict.js",
   "buildCommand": "npm run prebuild && npm run build"
 }
