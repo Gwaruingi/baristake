@@ -4,7 +4,6 @@ import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
-import { User } from "@/models/User";
 import bcrypt from "bcryptjs";
 
 // Test MongoDB connection
@@ -23,7 +22,7 @@ const testConnection = async () => {
 // Initialize connection test - but don't block startup if it fails
 testConnection().catch(() => console.log("Connection test failed but continuing startup"));
 
-export default NextAuth({
+export const authOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     GoogleProvider({
@@ -106,4 +105,6 @@ export default NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET,
-});
+};
+
+export default NextAuth(authOptions);
