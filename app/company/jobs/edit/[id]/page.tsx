@@ -1,9 +1,21 @@
 import { redirect } from 'next/navigation';
+import mongoose from 'mongoose';
 import { auth } from '@/auth';
 import { Company } from '@/models/Company';
 import { Job } from '@/models/Job';
 import { dbConnect } from '@/lib/mongoose';
 import JobPostingForm from '@/components/jobs/JobPostingForm';
+
+// Define interfaces for MongoDB documents
+interface CompanyDocument {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  description: string;
+  website?: string;
+  logo?: string;
+  status: string;
+  userId?: mongoose.Types.ObjectId;
+}
 
 export default async function EditJobPage({ params }: { params: { id: string } }) {
   // Get the current session
@@ -18,14 +30,17 @@ export default async function EditJobPage({ params }: { params: { id: string } }
   await dbConnect();
   
   // Check if the company has an approved profile
-  const company = await Company.findOne({ 
+  const companyDoc = await Company.findOne({ 
     userId: session.user.id,
     status: 'approved'
   }).lean();
   
-  if (!company) {
+  if (!companyDoc) {
     return redirect('/company/profile');
   }
+  
+  // Cast to our interface type
+  const company = companyDoc as unknown as CompanyDocument;
   
   // Get the job to edit
   const job = await Job.findById(params.id).lean();
