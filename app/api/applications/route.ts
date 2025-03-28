@@ -5,7 +5,6 @@ import { Profile } from "@/models/Profile";
 import { Job } from "@/models/Job";
 import { auth } from "@/auth";
 import { ensureDbConnected } from "@/lib/mongoose";
-import { sendEmail } from "@/lib/email";
 import { Resend } from 'resend';
 
 // Define interfaces for MongoDB documents
