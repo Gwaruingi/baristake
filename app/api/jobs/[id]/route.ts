@@ -12,6 +12,17 @@ import {
 } from "@/lib/error-handler";
 import { ensureDbConnected } from "@/lib/mongoose";
 
+// Define interfaces for MongoDB documents
+interface CompanyDocument {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  description: string;
+  website?: string;
+  logo?: string;
+  status: string;
+  userId?: mongoose.Types.ObjectId;
+}
+
 interface RouteParams {
   params: Promise<{
     id: string;
@@ -91,18 +102,21 @@ export async function PATCH(
     // Get the job ID from params
     const { id } = await params;
     
-    // Check if the company has an approved profile
-    const company = await Company.findOne({ 
+    // Check if the user has a company profile
+    const companyDoc = await Company.findOne({
       userId: session.user.id,
       status: 'approved'
     }).lean();
     
-    if (!company) {
+    if (!companyDoc) {
       return handlePermissionError(
         new Error("No approved company profile"),
         "You need an approved company profile to update jobs."
       );
     }
+    
+    // Cast to our interface type
+    const company = companyDoc as unknown as CompanyDocument;
     
     // Parse job data from request
     const jobData = await request.json();
@@ -173,18 +187,21 @@ export async function DELETE(
     // Get the job ID from params
     const { id } = await params;
     
-    // Check if the company has an approved profile
-    const company = await Company.findOne({ 
+    // Check if the user has a company profile
+    const companyDoc = await Company.findOne({
       userId: session.user.id,
       status: 'approved'
     }).lean();
     
-    if (!company) {
+    if (!companyDoc) {
       return handlePermissionError(
         new Error("No approved company profile"),
         "You need an approved company profile to delete jobs."
       );
     }
+    
+    // Cast to our interface type
+    const company = companyDoc as unknown as CompanyDocument;
     
     // Find the job to delete
     const job = await Job.findById(id);

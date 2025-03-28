@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { Job } from "@/models/Job";
 import { Company } from "@/models/Company";
 import { auth } from "@/auth";
@@ -9,6 +10,17 @@ import {
   handleAuthError, 
   handlePermissionError 
 } from "@/lib/error-handler";
+
+// Define interfaces for MongoDB documents
+interface CompanyDocument {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  description: string;
+  website?: string;
+  logo?: string;
+  status: string;
+  userId?: mongoose.Types.ObjectId;
+}
 
 export async function GET(request: Request) {
   try {
@@ -32,9 +44,9 @@ export async function GET(request: Request) {
     // If user is a company, they should only see their own jobs
     if (session?.user?.role === 'company') {
       // Find the company associated with the current user
-      const userCompany = await Company.findOne({ userId: session.user.id }).lean();
+      const userCompanyDoc = await Company.findOne({ userId: session.user.id }).lean();
       
-      if (!userCompany) {
+      if (!userCompanyDoc) {
         return NextResponse.json({
           jobs: [],
           pagination: {
@@ -45,6 +57,9 @@ export async function GET(request: Request) {
           }
         });
       }
+      
+      // Cast to our interface type
+      const userCompany = userCompanyDoc as unknown as CompanyDocument;
       
       // Override any companyId parameter to ensure they only see their own jobs
       query.companyId = userCompany._id.toString();
@@ -120,17 +135,20 @@ export async function POST(request: Request) {
     await dbConnect();
     
     // Check if the company has an approved profile
-    const company = await Company.findOne({ 
+    const companyDoc = await Company.findOne({ 
       userId: session.user.id,
       status: 'approved'
     }).lean();
     
-    if (!company) {
+    if (!companyDoc) {
       return handlePermissionError(
         new Error("No approved company profile"),
         "You need an approved company profile to post jobs."
       );
     }
+    
+    // Cast to our interface type
+    const company = companyDoc as unknown as CompanyDocument;
     
     // Parse job data from request
     const jobData = await request.json();
