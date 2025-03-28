@@ -1,10 +1,8 @@
-import { auth } from "@/auth";
+import { getServerSession } from "next-auth/next";
 import Link from "next/link";
-import Image from "next/image";
+import { authOptions } from "./api/auth/[...nextauth]";
 
-export default async function Home() {
-  const session = await auth();
-
+export default function Home({ session }: { session: any }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -195,32 +193,85 @@ export default async function Home() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold mb-2">Get Hired</h3>
-            <p className="text-gray-600">Start your new career journey with your dream company.</p>
+            <p className="text-gray-600">Start your new career journey with your dream job.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Testimonials */}
+      <div className="bg-blue-50 py-16">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <h2 className="text-3xl font-bold mb-12 text-center">Success Stories</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                name: "John Doe",
+                position: "Software Developer",
+                company: "TechCorp",
+                testimonial: "I found my dream job within just two weeks of using this platform. The process was smooth and the interface is user-friendly.",
+                avatar: "/placeholder-avatar.png",
+              },
+              {
+                name: "Jane Smith",
+                position: "Marketing Specialist",
+                company: "Global Brands",
+                testimonial: "This job portal helped me connect with employers that align with my career goals. I'm now working at my dream company!",
+                avatar: "/placeholder-avatar.png",
+              },
+              {
+                name: "David Johnson",
+                position: "Financial Analyst",
+                company: "Investment Partners",
+                testimonial: "The job matching algorithm is impressive. I received job recommendations that perfectly matched my skills and experience.",
+                avatar: "/placeholder-avatar.png",
+              },
+            ].map((testimonial, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mr-4">
+                    <span className="text-lg font-bold text-gray-500">{testimonial.name.charAt(0)}</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">{testimonial.name}</h3>
+                    <p className="text-gray-600 text-sm">{testimonial.position} at {testimonial.company}</p>
+                  </div>
+                </div>
+                <p className="text-gray-700 italic">"{testimonial.testimonial}"</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* CTA Section */}
-      <div className="bg-blue-600 text-white py-16">
-        <div className="container mx-auto px-4 text-center max-w-3xl">
-          <h2 className="text-3xl font-bold mb-4">Ready to Find Your Next Opportunity?</h2>
-          <p className="text-xl mb-8">Join thousands of job seekers who have found their dream jobs through our platform.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              href="/auth/register" 
-              className="bg-white text-blue-600 hover:bg-gray-100 font-medium py-3 px-8 rounded-md transition duration-200"
-            >
-              Create an Account
-            </Link>
-            <Link 
-              href="/jobs" 
-              className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-3 px-8 rounded-md border border-blue-500 transition duration-200"
-            >
-              Search Jobs
-            </Link>
-          </div>
+      <div className="container mx-auto px-4 py-16 max-w-7xl text-center">
+        <h2 className="text-3xl font-bold mb-4">Ready to Find Your Dream Job?</h2>
+        <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">Join thousands of job seekers who have successfully found their perfect career match through our platform.</p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link 
+            href="/auth/register" 
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-md transition duration-200"
+          >
+            Sign Up Now
+          </Link>
+          <Link 
+            href="/jobs" 
+            className="bg-white hover:bg-gray-50 text-blue-600 font-medium py-3 px-8 rounded-md border border-blue-600 transition duration-200"
+          >
+            Browse Jobs
+          </Link>
         </div>
       </div>
     </div>
   );
+}
+
+export async function getServerSideProps(context: any) {
+  const session = await getServerSession(context.req, context.res, authOptions);
+  
+  return {
+    props: {
+      session,
+    },
+  };
 }
