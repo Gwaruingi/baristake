@@ -36,19 +36,25 @@ interface ApplicationDocument {
   userId: mongoose.Types.ObjectId;
   name: string;
   email: string;
-  status: string;
+  resume?: string;
+  cv?: string;
+  coverLetter?: string;
+  status: 'pending' | 'reviewed' | 'shortlisted' | 'interview' | 'hired' | 'rejected' | 'accepted';
+  notes?: string;
   notificationRead?: boolean;
   statusHistory?: {
     status: string;
     date: Date;
     notes?: string;
   }[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface RouteParams {
-  params: Promise<{
+  params: {
     id: string;
-  }>;
+  };
 }
 
 // GET handler to fetch a specific application
@@ -71,7 +77,7 @@ export async function GET(
     }
     
     // Validate the application ID
-    const { id } = await params;
+    const { id } = params;
     if (!id) {
       return handleValidationError(
         new Error("Missing application ID"),
@@ -166,7 +172,7 @@ export async function PATCH(
     }
     
     // Get the application ID from params
-    const { id } = await params;
+    const { id } = params;
     
     // Validate the application ID
     if (!id) {
