@@ -18,6 +18,21 @@ const nextConfig = {
         destination: '/api/auth/:path*',
       }
     ];
+  },
+  // Add webpack configuration to handle Node.js modules
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Don't resolve 'fs', 'net', 'tls', 'dns' modules on the client side
+      config.resolve.fallback = {
+        fs: false,
+        net: false,
+        tls: false,
+        dns: false,
+        child_process: false,
+        perf_hooks: false,
+      };
+    }
+    return config;
   }
 };
 

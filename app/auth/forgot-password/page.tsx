@@ -1,13 +1,24 @@
 'use client'
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 
-export default async function ForgotPasswordPage() {
-  const session = await auth();
+export default function ForgotPasswordPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (session) {
-    redirect("/");
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      router.replace("/");
+    } else if (status !== "loading") {
+      setIsLoading(false);
+    }
+  }, [session, status, router]);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
   return (
