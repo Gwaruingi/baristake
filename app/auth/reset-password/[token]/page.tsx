@@ -16,8 +16,9 @@ interface ResetPasswordForm {
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const { token } = useParams();
+  const params = useParams();
   const searchParams = useSearchParams();
+  const token = searchParams ? searchParams.get('token') : null;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);

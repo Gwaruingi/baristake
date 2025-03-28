@@ -19,7 +19,7 @@ export default function UserManagement() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const roleFilter = searchParams.get('role') || 'all';
+  const roleFilter = searchParams ? searchParams.get('role') || 'all' : 'all';
   
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);

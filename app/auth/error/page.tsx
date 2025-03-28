@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 
 export default function AuthError() {
   const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+  const error = searchParams ? searchParams.get('error') : null;
 
   const errorMessages: { [key: string]: string } = {
     Configuration: "There is a problem with the server configuration.",

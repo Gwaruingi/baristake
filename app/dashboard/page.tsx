@@ -40,7 +40,8 @@ export default function Dashboard() {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const highlightedAppId = searchParams.get('application');
+  const highlightedAppId = searchParams ? searchParams.get('application') : null;
+  const statusFilter = searchParams ? searchParams.get('status') || 'all' : 'all';
   
   const [applications, setApplications] = useState<Application[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);

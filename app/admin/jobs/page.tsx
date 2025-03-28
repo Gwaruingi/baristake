@@ -43,7 +43,7 @@ export default function JobManagement() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const statusFilter = searchParams.get('status') || 'all';
+  const statusFilter = searchParams ? searchParams.get('status') || 'all' : 'all';
   
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);

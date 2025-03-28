@@ -39,7 +39,7 @@ export default function ApplicationMonitoring() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const statusFilter = searchParams.get('status') || 'all';
+  const statusFilter = searchParams ? searchParams.get('status') || 'all' : 'all';
   
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
