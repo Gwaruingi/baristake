@@ -47,17 +47,20 @@ export async function GET(request: Request) {
     const jobId = url.searchParams.get('jobId');
     
     // Find the company profile for the current user
-    const company = await Company.findOne({ 
+    const companyDoc = await Company.findOne({ 
       userId: session.user.id,
       status: 'approved'
-    }).lean() as CompanyDocument;
+    }).lean();
     
-    if (!company) {
+    if (!companyDoc) {
       return handlePermissionError(
         new Error("No approved company profile"),
         "You need an approved company profile to view applications."
       );
     }
+    
+    // Cast to our interface type
+    const company = companyDoc as unknown as CompanyDocument;
     
     // Find all jobs posted by this company
     const companyJobs = await Job.find({ companyId: company._id }).lean();
