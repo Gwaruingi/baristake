@@ -80,20 +80,23 @@ export async function GET(
     }
     
     // Fetch the application with job details
-    const application = await Application.findById(id)
+    const applicationDoc = await Application.findById(id)
       .populate({
         path: 'jobId',
         model: Job,
         select: 'title companyName companyId location jobType status'
       })
-      .lean() as ApplicationDocument;
+      .lean();
     
-    if (!application) {
+    if (!applicationDoc) {
       return handleNotFoundError(
         new Error(`Application with ID ${id} not found`),
         "Application not found"
       );
     }
+    
+    // Cast to our interface type
+    const application = applicationDoc as unknown as ApplicationDocument;
     
     // Check if the user is authorized to view this application
     if (session.user.role === 'jobseeker') {
@@ -185,20 +188,23 @@ export async function PATCH(
     }
     
     // Fetch the application with job details
-    const application = await Application.findById(id)
+    const applicationDoc = await Application.findById(id)
       .populate({
         path: 'jobId',
         model: Job,
         select: 'title companyName companyId location jobType status'
       })
-      .lean() as ApplicationDocument;
+      .lean();
     
-    if (!application) {
+    if (!applicationDoc) {
       return handleNotFoundError(
         new Error(`Application with ID ${id} not found`),
         "Application not found"
       );
     }
+    
+    // Cast to our interface type
+    const application = applicationDoc as unknown as ApplicationDocument;
     
     // Check authorization based on user role
     if (session.user.role === 'company') {
