@@ -17,6 +17,15 @@ interface CompanyDocument {
   userId?: mongoose.Types.ObjectId;
 }
 
+// Define UserDocument interface for proper typing
+interface UserDocument {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  role: string;
+  companyName?: string;
+}
+
 // GET a single company by ID
 export async function GET(
   request: Request,
@@ -124,7 +133,10 @@ export async function PATCH(
     let user = null;
     try {
       if (company.userId) {
-        user = await User.findById(company.userId).lean();
+        const userDoc = await User.findById(company.userId).lean();
+        if (userDoc) {
+          user = userDoc as unknown as UserDocument;
+        }
       }
     } catch (userError) {
       console.error('Error finding user:', userError);
