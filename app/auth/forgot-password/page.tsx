@@ -1,3 +1,4 @@
+'use client'
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
