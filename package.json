@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "set NODE_OPTIONS=--max-old-space-size=4096 && next dev",
-    "prebuild": "node .vercel-fix/build-fix.js",
+    "prebuild": "node scripts/fix-auth-conflict.js",
     "build": "set NODE_OPTIONS=--max-old-space-size=4096 && next build",
     "start": "set NODE_OPTIONS=--max-old-space-size=4096 && next start",
     "lint": "next lint",
@@ -50,6 +50,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.2.3",
+    "rimraf": "^6.0.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
