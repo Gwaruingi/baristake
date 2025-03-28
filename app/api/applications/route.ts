@@ -168,10 +168,10 @@ export async function POST(request: Request) {
         await resend.emails.send({
           from: 'Job Portal <notifications@jobportal.com>',
           to: profile.email,
-          subject: `Application Submitted: ${job.title} at ${job.company}`,
+          subject: `Application Submitted: ${job.title} at ${job.companyName}`,
           html: `
             <h1>Application Submitted</h1>
-            <p>Thank you for applying to the ${job.title} position at ${job.company}.</p>
+            <p>Thank you for applying to the ${job.title} position at ${job.companyName}.</p>
             <p>Your application has been received and is currently under review.</p>
             <p>You can track the status of your application in your dashboard.</p>
           `
