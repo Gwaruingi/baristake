@@ -19,15 +19,20 @@ interface ProfileDocument {
   education?: string;
 }
 
-// Initialize Resend for email notifications
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Call ensureDbConnected at the module level
-ensureDbConnected();
+// Initialize Resend for email notifications - moved inside handlers to avoid build issues
+let resend: Resend;
 
 // GET handler to fetch user's applications
 export async function GET(request: Request) {
   try {
+    // Ensure database connection
+    await ensureDbConnected();
+    
+    // Initialize Resend for email notifications
+    if (!resend && process.env.RESEND_API_KEY) {
+      resend = new Resend(process.env.RESEND_API_KEY);
+    }
+    
     // Get the current session
     const session = await auth();
     
@@ -51,7 +56,7 @@ export async function GET(request: Request) {
       .populate({
         path: 'jobId',
         model: Job,
-        select: 'title company location type status'
+        select: 'title companyName location type status'
       })
       .sort({ createdAt: -1 })
       .lean();
@@ -69,6 +74,14 @@ export async function GET(request: Request) {
 // POST handler to create a new application
 export async function POST(request: Request) {
   try {
+    // Ensure database connection
+    await ensureDbConnected();
+    
+    // Initialize Resend for email notifications
+    if (!resend && process.env.RESEND_API_KEY) {
+      resend = new Resend(process.env.RESEND_API_KEY);
+    }
+    
     // Get the current session
     const session = await auth();
     
@@ -163,11 +176,11 @@ export async function POST(request: Request) {
     const application = await Application.create(applicationData);
     
     // Send email notification (if Resend API key is set)
-    if (process.env.RESEND_API_KEY && process.env.NOTIFICATION_EMAIL) {
+    if (resend && process.env.NOTIFICATION_EMAIL) {
       try {
         await resend.emails.send({
           from: 'Job Portal <notifications@jobportal.com>',
-          to: profile.email,
+          to: [profile.email, process.env.NOTIFICATION_EMAIL],
           subject: `Application Submitted: ${job.title} at ${job.companyName}`,
           html: `
             <h1>Application Submitted</h1>
