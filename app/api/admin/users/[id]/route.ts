@@ -4,6 +4,19 @@ import { User } from "@/models/User";
 import { auth } from "@/auth";
 import { ensureDbConnected } from "@/lib/mongoose";
 
+// Define User interface to match the MongoDB schema
+interface UserDocument {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+  companyName?: string;
+  isActive?: boolean;
+}
+
 // GET handler to fetch a specific user
 export async function GET(
   request: Request,
@@ -83,7 +96,7 @@ export async function PATCH(
     }
     
     // Prevent modifying admin users
-    const targetUser = await User.findById(id).lean();
+    const targetUser = await User.findById(id).lean() as UserDocument;
     
     if (!targetUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -144,7 +157,7 @@ export async function DELETE(
     }
     
     // Prevent deleting admin users
-    const targetUser = await User.findById(id).lean();
+    const targetUser = await User.findById(id).lean() as UserDocument;
     
     if (!targetUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
