@@ -4,7 +4,21 @@ import { Application } from "@/models/Application";
 import { Profile } from "@/models/Profile";
 import { Job } from "@/models/Job";
 import { auth } from "@/auth";
+import { ensureDbConnected } from "@/lib/mongoose";
+import { sendEmail } from "@/lib/email";
 import { Resend } from 'resend';
+
+// Define interfaces for MongoDB documents
+interface ProfileDocument {
+  _id: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  resume?: string;
+  skills?: string[];
+  experience?: string;
+  education?: string;
+}
 
 // Initialize Resend for email notifications
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -115,8 +129,8 @@ export async function POST(request: Request) {
       );
     }
     
-    // Get user profile
-    const profile = await Profile.findOne({ email: session.user.email }).lean();
+    // Fetch user profile
+    const profile = await Profile.findOne({ userId: session.user.id }).lean() as unknown as ProfileDocument;
     
     if (!profile) {
       return NextResponse.json(
