@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { auth } from "@/auth";
-import { Application, IApplication } from "@/models/Application";
+import { Application } from "@/models/Application";
 import { Job, IJob } from "@/models/Job";
 import { User } from "@/models/User";
 import { Company } from "@/models/Company";
@@ -20,11 +20,17 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Define interfaces for MongoDB documents
-interface JobDocument extends IJob {
+interface JobDocument {
   _id: mongoose.Types.ObjectId;
+  title: string;
+  companyId: mongoose.Types.ObjectId;
+  companyName: string;
+  jobType: string;
+  location: string;
+  status: string;
 }
 
-interface ApplicationDocument extends IApplication {
+interface ApplicationDocument {
   _id: mongoose.Types.ObjectId;
   jobId: JobDocument;
   userId: mongoose.Types.ObjectId;
