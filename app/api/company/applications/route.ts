@@ -13,6 +13,17 @@ import {
   handleNotFoundError
 } from "@/lib/error-handler";
 
+// Define interfaces for MongoDB documents
+interface CompanyDocument {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  description: string;
+  website?: string;
+  logo?: string;
+  status: string;
+  userId?: mongoose.Types.ObjectId;
+}
+
 // GET handler to fetch applications for a company's jobs
 export async function GET(request: Request) {
   try {
@@ -39,7 +50,7 @@ export async function GET(request: Request) {
     const company = await Company.findOne({ 
       userId: session.user.id,
       status: 'approved'
-    }).lean();
+    }).lean() as CompanyDocument;
     
     if (!company) {
       return handlePermissionError(
