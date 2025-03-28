@@ -1,6 +1,8 @@
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
 import { authOptions } from "./api/auth/[...nextauth]";
+import { NextAuthOptions } from "next-auth";
+import { GetServerSidePropsContext } from "next";
 
 export default function Home({ session }: { session: any }) {
   return (
@@ -266,8 +268,12 @@ export default function Home({ session }: { session: any }) {
   );
 }
 
-export async function getServerSideProps(context: any) {
-  const session = await getServerSession(context.req, context.res, authOptions);
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const session = await getServerSession(
+    context.req,
+    context.res,
+    authOptions as NextAuthOptions
+  );
   
   return {
     props: {

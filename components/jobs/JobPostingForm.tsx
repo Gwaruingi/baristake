@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik';
+import { Formik, Form, Field, FieldArray, ErrorMessage, FormikErrors, FormikTouched } from 'formik';
 import * as Yup from 'yup';
 import { toast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,20 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { XCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
+
+// Define interface for job form values
+interface JobFormValues {
+  title: string;
+  jobType: string;
+  location: string;
+  salary: string;
+  description: string;
+  responsibilities: string[];
+  requirements: string[];
+  applicationDeadline: string;
+  status: string;
+  [key: string]: any;
+}
 
 // Job posting validation schema
 const JobPostingSchema = Yup.object().shape({
@@ -38,7 +52,7 @@ const JobPostingSchema = Yup.object().shape({
 });
 
 // Initial values for the form
-const initialValues = {
+const initialValues: JobFormValues = {
   title: '',
   jobType: '',
   location: '',
@@ -47,6 +61,7 @@ const initialValues = {
   responsibilities: [''],
   requirements: [''],
   applicationDeadline: '',
+  status: '',
 };
 
 interface JobPostingFormProps {
@@ -81,7 +96,7 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
     }
   }, [job]);
 
-  const handleSubmit = async (values: any, { setSubmitting }: any) => {
+  const handleSubmit = async (values: JobFormValues, { setSubmitting }: any) => {
     try {
       setLoading(true);
 
@@ -112,30 +127,22 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
         throw new Error(data.error || `Failed to ${isEditMode ? 'update' : 'post'} job`);
       }
 
-      toast({
-        title: "Success!",
-        message: isEditMode 
-          ? "Your job has been updated successfully." 
-          : "Your job has been posted successfully.",
-        type: "success",
-      });
+      toast.success(isEditMode 
+        ? "Your job has been updated successfully." 
+        : "Your job has been posted successfully.");
 
       // Redirect to company jobs page
       router.push('/company/jobs');
       router.refresh();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        message: error.message || `Failed to ${isEditMode ? 'update' : 'post'} job`,
-        type: "error",
-      });
+      toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'post'} job`);
     } finally {
       setLoading(false);
       setSubmitting(false);
     }
   };
 
-  const handlePreview = (values: any) => {
+  const handlePreview = (values: JobFormValues) => {
     setPreviewData({
       ...values,
       applyMethod: { type: 'internal' }
@@ -232,7 +239,7 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ values, errors, touched, isSubmitting, isValid, dirty }) => (
+        {({ values, errors, touched, isSubmitting, isValid, dirty }: { values: JobFormValues, errors: FormikErrors<JobFormValues>, touched: FormikTouched<JobFormValues>, isSubmitting: boolean, isValid: boolean, dirty: boolean }) => (
           <Form className="space-y-6">
             {/* Job Title */}
             <div>
@@ -318,7 +325,8 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
                           name={`responsibilities.${index}`}
                           placeholder="Add a responsibility"
                           className={`w-full ${
-                            errors.responsibilities?.[index] && touched.responsibilities?.[index]
+                            (errors.responsibilities as string[] | undefined)?.[index] && 
+                            (touched.responsibilities as boolean[] | undefined)?.[index]
                               ? 'border-red-500'
                               : ''
                           }`}
@@ -365,7 +373,8 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
                           name={`requirements.${index}`}
                           placeholder="Add a requirement"
                           className={`w-full ${
-                            errors.requirements?.[index] && touched.requirements?.[index]
+                            (errors.requirements as string[] | undefined)?.[index] && 
+                            (touched.requirements as boolean[] | undefined)?.[index]
                               ? 'border-red-500'
                               : ''
                           }`}

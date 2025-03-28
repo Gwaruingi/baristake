@@ -6,11 +6,26 @@ import { useRouter } from 'next/navigation';
 import ProfileForm from '@/components/profile/ProfileForm';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
+// Define interface for profile data
+interface ProfileData {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  education?: string;
+  experience?: string;
+  skills?: string[];
+  bio?: string;
+  resumeUrl?: string;
+  userId?: string;
+  [key: string]: any; // Allow for additional properties
+}
+
 export default function CandidateProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [notification, setNotification] = useState({ 
     show: false, 
     type: '', 
@@ -48,7 +63,7 @@ export default function CandidateProfilePage() {
   };
 
   // Save profile data
-  const saveProfile = async (profileData) => {
+  const saveProfile = async (profileData: ProfileData) => {
     try {
       setLoading(true);
       const response = await fetch('/api/profile', {
@@ -76,11 +91,11 @@ export default function CandidateProfilePage() {
   };
 
   // Show notification
-  const showNotification = (type, message) => {
+  const showNotification = (type: string, message: string) => {
     setNotification({ show: true, type, message });
     setTimeout(() => {
       setNotification({ show: false, type: '', message: '' });
-    }, 5000);
+    }, 3000);
   };
 
   // If loading or not authenticated

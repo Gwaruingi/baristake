@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
   },
   companyName: { 
     type: String,
-    required: function() { return this.role === 'company'; }
+    required: function(this: { role: string }) { return this.role === 'company'; }
   },
   isActive: {
     type: Boolean,
