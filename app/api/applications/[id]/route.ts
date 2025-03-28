@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { auth } from "@/auth";
-import { Application } from "@/models/Application";
-import { Job } from "@/models/Job";
+import { Application, IApplication } from "@/models/Application";
+import { Job, IJob } from "@/models/Job";
+import { User } from "@/models/User";
 import { Company } from "@/models/Company";
 import { Notification } from "@/models/Notification";
 import { 
@@ -17,6 +18,26 @@ import { Resend } from 'resend';
 
 // Initialize Resend for email notifications
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Define interfaces for MongoDB documents
+interface JobDocument extends IJob {
+  _id: mongoose.Types.ObjectId;
+}
+
+interface ApplicationDocument extends IApplication {
+  _id: mongoose.Types.ObjectId;
+  jobId: JobDocument;
+  userId: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  status: string;
+  notificationRead?: boolean;
+  statusHistory?: {
+    status: string;
+    date: Date;
+    notes?: string;
+  }[];
+}
 
 interface RouteParams {
   params: Promise<{
@@ -59,7 +80,7 @@ export async function GET(
         model: Job,
         select: 'title companyName companyId location jobType status'
       })
-      .lean();
+      .lean() as ApplicationDocument;
     
     if (!application) {
       return handleNotFoundError(
@@ -84,15 +105,11 @@ export async function GET(
       }
     } else if (session.user.role === 'company') {
       // Companies can only view applications for their jobs
-      // Find the company profile
-      const company = await Company.findOne({ 
-        userId: session.user.id,
-        status: 'approved'
-      }).lean();
+      const company = await Company.findOne({ userId: session.user.id });
       
       if (!company) {
         return handlePermissionError(
-          new Error("No approved company profile"),
+          new Error("Company profile not found"),
           "You need an approved company profile to view applications"
         );
       }
@@ -167,7 +184,8 @@ export async function PATCH(
         path: 'jobId',
         model: Job,
         select: 'title companyName companyId location jobType status'
-      });
+      })
+      .lean() as ApplicationDocument;
     
     if (!application) {
       return handleNotFoundError(
@@ -179,15 +197,11 @@ export async function PATCH(
     // Check authorization based on user role
     if (session.user.role === 'company') {
       // Companies can only update applications for their jobs
-      // Find the company profile
-      const company = await Company.findOne({ 
-        userId: session.user.id,
-        status: 'approved'
-      }).lean();
+      const company = await Company.findOne({ userId: session.user.id });
       
       if (!company) {
         return handlePermissionError(
-          new Error("No approved company profile"),
+          new Error("Company profile not found"),
           "You need an approved company profile to update applications"
         );
       }
@@ -256,7 +270,7 @@ export async function PATCH(
       Object.assign(application, updateFields);
       
       // Save the updated application
-      await application.save();
+      await Application.findByIdAndUpdate(id, updateFields);
       
       // Send email notification to the applicant if status changed
       if (updateData.status && updateData.status !== application.status && process.env.RESEND_API_KEY) {
@@ -317,10 +331,7 @@ export async function PATCH(
       });
       
       // Update the application
-      Object.assign(application, updateFields);
-      
-      // Save the updated application
-      await application.save();
+      await Application.findByIdAndUpdate(id, updateFields);
     } else {
       // Admin users can update all applications
       if (session.user.role !== 'admin') {
@@ -331,10 +342,7 @@ export async function PATCH(
       }
       
       // Update the application with all provided fields
-      Object.assign(application, updateData);
-      
-      // Save the updated application
-      await application.save();
+      await Application.findByIdAndUpdate(id, updateData);
     }
     
     return NextResponse.json({
