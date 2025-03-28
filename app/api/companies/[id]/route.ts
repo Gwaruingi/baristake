@@ -6,6 +6,17 @@ import { User } from '@/models/User';
 import { resend } from '@/lib/resend';
 import { dbConnect } from '@/lib/mongoose';
 
+// Define CompanyDocument interface for proper typing
+interface CompanyDocument {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  description: string;
+  website?: string;
+  logo?: string;
+  status: string;
+  userId?: mongoose.Types.ObjectId;
+}
+
 // GET a single company by ID
 export async function GET(
   request: Request,
@@ -33,15 +44,18 @@ export async function GET(
       );
     }
     
-    const company = await Company.findById(id).lean();
+    const companyDoc = await Company.findById(id).lean();
     
-    if (!company) {
+    if (!companyDoc) {
       return NextResponse.json(
         { error: 'Company not found' },
         { status: 404 }
       );
     }
-
+    
+    // Cast to our interface type
+    const company = companyDoc as unknown as CompanyDocument;
+    
     return NextResponse.json(company);
   } catch (error: any) {
     console.error('Error fetching company:', error);
@@ -90,18 +104,21 @@ export async function PATCH(
     }
     
     // Use findOneAndUpdate to avoid validation issues
-    const company = await Company.findOneAndUpdate(
+    const companyDoc = await Company.findOneAndUpdate(
       { _id: id },
       { status: status },
       { new: true }
     ).lean();
     
-    if (!company) {
+    if (!companyDoc) {
       return NextResponse.json(
         { error: 'Company not found' },
         { status: 404 }
       );
     }
+    
+    // Cast to our interface type
+    const company = companyDoc as unknown as CompanyDocument;
     
     // Find the company owner using the userId
     let user = null;
