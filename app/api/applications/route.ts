@@ -23,13 +23,8 @@ interface ProfileDocument {
 // Initialize Resend for email notifications
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Ensure database connection
-async function ensureDbConnected() {
-  if (!mongoose.connection.readyState) {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-    console.log("MongoDB connection successful!");
-  }
-}
+// Call ensureDbConnected at the module level
+ensureDbConnected();
 
 // GET handler to fetch user's applications
 export async function GET(request: Request) {
@@ -40,9 +35,6 @@ export async function GET(request: Request) {
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    // Ensure database connection
-    await ensureDbConnected();
     
     // Get query parameters
     const url = new URL(request.url);
@@ -84,9 +76,6 @@ export async function POST(request: Request) {
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    // Ensure database connection
-    await ensureDbConnected();
     
     // Parse the request body
     const data = await request.json();
