@@ -4,8 +4,10 @@ import { User } from "@/models/User";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { Resend } from "resend";
+import { ensureDbConnected } from "@/lib/mongoose";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend - moved inside handler to avoid build issues
+let resend: Resend | null = null;
 
 const resetPasswordSchema = z.object({
   token: z.string(),
@@ -18,6 +20,14 @@ const resetPasswordSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    // Ensure database connection
+    await ensureDbConnected();
+    
+    // Initialize Resend if not already initialized
+    if (!resend && process.env.RESEND_API_KEY) {
+      resend = new Resend(process.env.RESEND_API_KEY);
+    }
+    
     const body = await request.json();
     const { token, password } = resetPasswordSchema.parse(body);
 
@@ -50,19 +60,25 @@ export async function POST(request: Request) {
     await user.save();
 
     // Send confirmation email
-    await resend.emails.send({
-      from: "Job Portal <noreply@jobportal.com>",
-      to: user.email,
-      subject: "Password Reset Successful",
-      html: `
-        <h1>Password Reset Successful</h1>
-        <p>Hi ${user.name},</p>
-        <p>Your password has been successfully reset.</p>
-        <p>If you did not perform this action, please contact our support team immediately.</p>
-        <p>Best regards,</p>
-        <p>The Job Portal Team</p>
-      `,
-    });
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: "Job Portal <noreply@jobportal.com>",
+          to: user.email,
+          subject: "Password Reset Successful",
+          html: `
+            <h1>Password Reset Successful</h1>
+            <p>Hi ${user.name},</p>
+            <p>Your password has been successfully reset.</p>
+            <p>If you did not perform this action, please contact our support team immediately.</p>
+            <p>Best regards,</p>
+            <p>The Job Portal Team</p>
+          `,
+        });
+      } catch (error) {
+        console.error('Failed to send password reset confirmation email:', error);
+      }
+    }
 
     return NextResponse.json(
       { message: "Password reset successful" },
