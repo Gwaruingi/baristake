@@ -3,8 +3,10 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { User } from "@/models/User";
 import { Resend } from "resend";
+import { ensureDbConnected } from "@/lib/mongoose";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend - moved inside handler to avoid build issues
+let resend: Resend | null = null;
 
 const registerSchema = z.object({
   name: z.string().min(2),
@@ -16,6 +18,14 @@ const registerSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    // Ensure database connection
+    await ensureDbConnected();
+    
+    // Initialize Resend if not already initialized
+    if (!resend && process.env.RESEND_API_KEY) {
+      resend = new Resend(process.env.RESEND_API_KEY);
+    }
+    
     const url = new URL(request.url);
     const isTestUser = url.searchParams.get('createTestUser') === 'true';
     
@@ -75,32 +85,38 @@ export async function POST(request: Request) {
     });
 
     // Send welcome email
-    await resend.emails.send({
-      from: 'Job Portal <noreply@jobportal.com>',
-      to: [email],
-      subject: role === 'company' 
-        ? 'Welcome to Job Portal - Company Account Created'
-        : 'Welcome to Job Portal',
-      html: `
-        <h1>Welcome to Job Portal</h1>
-        <p>Dear ${name},</p>
-        ${role === 'company' 
-          ? `
-            <p>Your company account has been created successfully.</p>
-            <p>Please complete your company profile by clicking the link below:</p>
-            <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/company/profile">Complete Company Profile</a></p>
-            <p>Once your company profile is approved, you can start posting jobs.</p>
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: 'Job Portal <noreply@jobportal.com>',
+          to: [email],
+          subject: role === 'company' 
+            ? 'Welcome to Job Portal - Company Account Created'
+            : 'Welcome to Job Portal',
+          html: `
+            <h1>Welcome to Job Portal</h1>
+            <p>Dear ${name},</p>
+            ${role === 'company' 
+              ? `
+                <p>Your company account has been created successfully.</p>
+                <p>Please complete your company profile by clicking the link below:</p>
+                <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/company/profile">Complete Company Profile</a></p>
+                <p>Once your company profile is approved, you can start posting jobs.</p>
+              `
+              : `
+                <p>Your account has been created successfully.</p>
+                <p>You can now start searching for jobs and applying to them.</p>
+              `
+            }
+            <br/>
+            <p>Best regards,</p>
+            <p>Job Portal Team</p>
           `
-          : `
-            <p>Your account has been created successfully.</p>
-            <p>You can now start searching for jobs and applying to them.</p>
-          `
-        }
-        <br/>
-        <p>Best regards,</p>
-        <p>Job Portal Team</p>
-      `
-    });
+        });
+      } catch (error: any) {
+        console.error('Error sending welcome email:', error);
+      }
+    }
 
     return NextResponse.json({
       message: 'Registration successful',

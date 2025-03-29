@@ -1,14 +1,6 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import { PasswordReset } from "@/models/PasswordReset";
-
-// Ensure database connection
-async function ensureDbConnected() {
-  if (!mongoose.connection.readyState) {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-    console.log("MongoDB connection successful!");
-  }
-}
+import { ensureDbConnected } from "@/lib/mongoose";
 
 // GET handler to verify a password reset token
 export async function GET(request: Request) {

@@ -4,22 +4,21 @@ import { Resend } from "resend";
 import { User } from "@/models/User";
 import { PasswordReset } from "@/models/PasswordReset";
 import { generateToken } from "@/lib/auth-utils";
+import { ensureDbConnected } from "@/lib/mongoose";
 
-// Ensure database connection
-async function ensureDbConnected() {
-  if (!mongoose.connection.readyState) {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-    console.log("MongoDB connection successful!");
-  }
-}
-
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend - moved inside handler to avoid build issues
+let resend: Resend | null = null;
 
 // POST handler to request password reset
 export async function POST(request: Request) {
   try {
+    // Ensure database connection
     await ensureDbConnected();
+    
+    // Initialize Resend if not already initialized
+    if (!resend && process.env.RESEND_API_KEY) {
+      resend = new Resend(process.env.RESEND_API_KEY);
+    }
     
     const { email } = await request.json();
     console.log(`Password reset requested for email: ${email}`);
@@ -61,35 +60,43 @@ export async function POST(request: Request) {
     try {
       console.log(`Attempting to send email to ${email} using Resend...`);
       
-      const emailResponse = await resend.emails.send({
-        from: "Job Portal <onboarding@resend.dev>", // Updated to use a valid Resend domain
-        to: email,
-        subject: "Password Reset Request",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h1>Password Reset Request</h1>
-            <p>Hello ${user.name},</p>
-            <p>We received a request to reset your password. If you didn't make this request, you can safely ignore this email.</p>
-            <p>To reset your password, please click the button below:</p>
-            <a
-              href="${resetUrl}"
-              style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-top: 20px; display: block; text-align: center;"
-            >
-              Reset Password
-            </a>
-            <p>This link will expire in 24 hours.</p>
-            <p>Best regards,<br/>The Job Portal Team</p>
-          </div>
-        `
-      });
+      if (resend) {
+        try {
+          const emailResponse = await resend.emails.send({
+            from: "Job Portal <onboarding@resend.dev>", // Updated to use a valid Resend domain
+            to: email,
+            subject: "Password Reset Request",
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h1>Password Reset Request</h1>
+                <p>Hello ${user.name},</p>
+                <p>We received a request to reset your password. If you didn't make this request, you can safely ignore this email.</p>
+                <p>To reset your password, please click the button below:</p>
+                <a
+                  href="${resetUrl}"
+                  style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-top: 20px; display: block; text-align: center;"
+                >
+                  Reset Password
+                </a>
+                <p>This link will expire in 24 hours.</p>
+                <p>Best regards,<br/>The Job Portal Team</p>
+              </div>
+            `
+          });
+          
+          console.log('Email sent successfully:', emailResponse);
+        } catch (emailError: any) {
+          console.error('Failed to send email:', emailError);
+          console.error('Error details:', emailError.message);
+        }
+      } else {
+        console.error('Resend client not initialized properly');
+      }
       
-      console.log('Email sent successfully:', emailResponse);
+      // We still return success to the client to prevent email enumeration
     } catch (emailError: any) {
       console.error('Failed to send email:', emailError);
       console.error('Error details:', emailError.message);
-      
-      // We still return success to the client to prevent email enumeration
-      // But we log the error for debugging
     }
 
     return NextResponse.json({ message: "If an account exists with this email, you will receive a reset link" });

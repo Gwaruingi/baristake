@@ -3,8 +3,10 @@ import { z } from "zod";
 import { User } from "@/models/User";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { ensureDbConnected } from "@/lib/mongoose";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend for email notifications - moved inside handler to avoid build issues
+let resend: Resend | null = null;
 
 // Create a schema for password reset tokens
 const resetTokenSchema = z.object({
@@ -15,6 +17,14 @@ const resetTokenSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    // Ensure database connection
+    await ensureDbConnected();
+    
+    // Initialize Resend if not already initialized
+    if (!resend && process.env.RESEND_API_KEY) {
+      resend = new Resend(process.env.RESEND_API_KEY);
+    }
+    
     const body = await request.json();
     const { email } = z.object({ email: z.string().email() }).parse(body);
 
@@ -43,21 +53,27 @@ export async function POST(request: Request) {
     const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`;
 
     // Send reset email
-    await resend.emails.send({
-      from: "Job Portal <noreply@jobportal.com>",
-      to: email,
-      subject: "Password Reset Request",
-      html: `
-        <h1>Password Reset Request</h1>
-        <p>Hi ${user.name},</p>
-        <p>You requested to reset your password. Click the link below to reset it:</p>
-        <p><a href="${resetUrl}">Reset Password</a></p>
-        <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request this, please ignore this email.</p>
-        <p>Best regards,</p>
-        <p>The Job Portal Team</p>
-      `,
-    });
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: "Job Portal <noreply@jobportal.com>",
+          to: email,
+          subject: "Password Reset Request",
+          html: `
+            <h1>Password Reset Request</h1>
+            <p>Hi ${user.name},</p>
+            <p>You requested to reset your password. Click the link below to reset it:</p>
+            <p><a href="${resetUrl}">Reset Password</a></p>
+            <p>This link will expire in 1 hour.</p>
+            <p>If you didn't request this, please ignore this email.</p>
+            <p>Best regards,</p>
+            <p>The Job Portal Team</p>
+          `,
+        });
+      } catch (error) {
+        console.error("Error sending password reset email:", error);
+      }
+    }
 
     return NextResponse.json(
       { message: "If an account exists, you will receive reset instructions" },

@@ -1,25 +1,23 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import { PasswordReset } from "@/models/PasswordReset";
 import { User } from "@/models/User";
 import { Resend } from "resend";
+import { ensureDbConnected } from "@/lib/mongoose";
 
-// Ensure database connection
-async function ensureDbConnected() {
-  if (!mongoose.connection.readyState) {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-    console.log("MongoDB connection successful!");
-  }
-}
-
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend - moved inside handler to avoid build issues
+let resend: Resend | null = null;
 
 // POST handler to reset password
 export async function POST(request: Request) {
   try {
+    // Ensure database connection
     await ensureDbConnected();
+    
+    // Initialize Resend if not already initialized
+    if (!resend && process.env.RESEND_API_KEY) {
+      resend = new Resend(process.env.RESEND_API_KEY);
+    }
     
     const { token, password } = await request.json();
     
@@ -80,21 +78,25 @@ export async function POST(request: Request) {
     try {
       console.log(`Sending password change confirmation email to ${user.email}`);
       
-      await resend.emails.send({
-        from: "Job Portal <onboarding@resend.dev>",
-        to: user.email,
-        subject: "Your Password Has Been Reset",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h1>Password Reset Successful</h1>
-            <p>Hello ${user.name},</p>
-            <p>Your password has been successfully reset. If you did not make this change, please contact our support team immediately.</p>
-            <p>Best regards,<br/>The Job Portal Team</p>
-          </div>
-        `
-      });
-      
-      console.log('Password change confirmation email sent');
+      if (resend) {
+        await resend.emails.send({
+          from: "Job Portal <onboarding@resend.dev>",
+          to: user.email,
+          subject: "Your Password Has Been Reset",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h1>Password Reset Successful</h1>
+              <p>Hello ${user.name},</p>
+              <p>Your password has been successfully reset. If you did not make this change, please contact our support team immediately.</p>
+              <p>Best regards,<br/>The Job Portal Team</p>
+            </div>
+          `
+        });
+        
+        console.log('Password change confirmation email sent');
+      } else {
+        console.error('Resend client not initialized properly');
+      }
     } catch (emailError) {
       // Log error but don't fail the request
       console.error('Failed to send confirmation email:', emailError);
