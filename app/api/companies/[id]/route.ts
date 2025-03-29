@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { auth } from '@/auth';
 import { Company } from '@/models/Company';
 import { User } from '@/models/User';
-import { resend } from '@/lib/resend';
+import { getResend } from '@/lib/resend';
 import { dbConnect } from '@/lib/mongoose';
 
 // Define CompanyDocument interface for proper typing
@@ -175,7 +175,7 @@ export async function PATCH(
       
       if (emailSubject && emailHtml) {
         try {
-          await resend.emails.send({
+          await getResend.emails.send({
             from: 'Job Portal <noreply@jobportal.com>',
             to: [user.email],
             subject: emailSubject,

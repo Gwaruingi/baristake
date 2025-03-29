@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { Company } from '@/models/Company';
-import { resend } from '@/lib/resend';
+import { getResend } from '@/lib/resend';
 import { dbConnect } from '@/lib/mongoose';
 
 export async function POST(req: NextRequest) {
@@ -33,20 +33,27 @@ export async function POST(req: NextRequest) {
     });
 
     // Send email notification
-    await resend.emails.send({
-      from: 'Job Portal <noreply@jobportal.com>',
-      to: [data.email],
-      subject: 'Company Profile Under Review',
-      html: `
-        <h1>Your Company Profile is Under Review</h1>
-        <p>Dear ${data.name},</p>
-        <p>Thank you for submitting your company profile. Our team will review it shortly.</p>
-        <p>You will receive another email once the review is complete.</p>
-        <br/>
-        <p>Best regards,</p>
-        <p>Job Portal Team</p>
-      `
-    });
+    const resendClient = getResend();
+    if (resendClient) {
+      try {
+        await resendClient.emails.send({
+          from: 'Job Portal <noreply@jobportal.com>',
+          to: [data.email],
+          subject: 'Company Profile Under Review',
+          html: `
+            <h1>Your Company Profile is Under Review</h1>
+            <p>Dear ${data.name},</p>
+            <p>Thank you for submitting your company profile. Our team will review it shortly.</p>
+            <p>You will receive another email once the review is complete.</p>
+            <br/>
+            <p>Best regards,</p>
+            <p>Job Portal Team</p>
+          `
+        });
+      } catch (error: any) {
+        console.error('Error sending email:', error);
+      }
+    }
 
     return NextResponse.json(company, { status: 201 });
   } catch (error: any) {
