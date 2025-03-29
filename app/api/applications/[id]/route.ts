@@ -1,23 +1,31 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { auth } from "@/auth";
 import { Application } from "@/models/Application";
-import { Job, IJob } from "@/models/Job";
-import { User } from "@/models/User";
-import { Company } from "@/models/Company";
-import { Notification } from "@/models/Notification";
-import { 
-  handleDbError, 
-  handleValidationError, 
-  handleAuthError, 
-  handlePermissionError,
-  handleNotFoundError
-} from "@/lib/error-handler";
-import { ensureDbConnected } from "@/lib/mongoose";
+import { Job } from "@/models/Job";
 import { Resend } from 'resend';
+import { auth } from "@/auth";
+import { ensureDbConnected } from "@/lib/mongoose";
 
-// Initialize Resend for email notifications
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Error handling functions
+function handleAuthError(error: Error, message: string) {
+  console.error(error.message);
+  return NextResponse.json({ error: message }, { status: 401 });
+}
+
+function handleValidationError(error: Error, message: string) {
+  console.error(error.message);
+  return NextResponse.json({ error: message }, { status: 400 });
+}
+
+function handleNotFoundError(error: Error, message: string) {
+  console.error(error.message);
+  return NextResponse.json({ error: message }, { status: 404 });
+}
+
+function handlePermissionError(error: Error, message: string) {
+  console.error(error.message);
+  return NextResponse.json({ error: message }, { status: 403 });
+}
 
 // Define interfaces for MongoDB documents
 interface JobDocument {
@@ -56,6 +64,9 @@ interface RouteParams {
     id: string;
   };
 }
+
+// Initialize Resend for email notifications - moved inside handlers to avoid build issues
+let resend: Resend | null = null;
 
 // GET handler to fetch a specific application
 export async function GET(
@@ -148,7 +159,7 @@ export async function GET(
     
     return NextResponse.json(application);
   } catch (error: any) {
-    return handleDbError(error, "Failed to fetch application details");
+    return handleNotFoundError(error, "Failed to fetch application details");
   }
 }
 
@@ -167,7 +178,7 @@ export async function PATCH(
     if (!session?.user) {
       return handleAuthError(
         new Error("Authentication required"),
-        "You must be logged in to update an application"
+        "You must be logged in to update application details"
       );
     }
     
@@ -293,6 +304,11 @@ export async function PATCH(
       // Send email notification to the applicant if status changed
       if (updateData.status && updateData.status !== application.status && process.env.RESEND_API_KEY) {
         try {
+          // Initialize Resend if not already initialized
+          if (!resend && process.env.RESEND_API_KEY) {
+            resend = new Resend(process.env.RESEND_API_KEY);
+          }
+          
           const statusMessages = {
             reviewed: "Your application has been reviewed",
             shortlisted: "Congratulations! You've been shortlisted",
@@ -374,6 +390,6 @@ export async function PATCH(
     }
     
     // Handle other errors
-    return handleDbError(error, "Failed to update application");
+    return handleNotFoundError(error, "Failed to update application");
   }
 }
