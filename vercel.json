@@ -5,12 +5,7 @@
   "functions": {
     "middleware": {
       "runtime": "edge",
-      "excludeFiles": [
-        "node_modules/next/dist/compiled/fs/**",
-        "node_modules/next/dist/compiled/path-browserify/**",
-        "node_modules/next/dist/compiled/stream-browserify/**",
-        "node_modules/next/dist/compiled/url/**"
-      ]
+      "excludeFiles": "node_modules/next/dist/compiled/{fs,path-browserify,stream-browserify,url}/**"
     }
   }
 }
