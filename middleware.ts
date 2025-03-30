@@ -1,70 +1,65 @@
 import { NextResponse, NextRequest } from "next/server";
-import { auth } from "@/auth";
+// import { auth } from "@/auth"; // Cannot reliably use auth() from v4 in Edge middleware
 
 export async function middleware(req: NextRequest) {
-  try {
-    const session = await auth(); // Get session using auth()
-    const token = session?.user; // Access user data (including role) from session
+  const path = req.nextUrl.pathname;
 
-    const path = req.nextUrl.pathname;
-    
-    // Handle protected routes
-    if (path.startsWith("/admin") || 
-        path.startsWith("/jobs/apply") || 
-        path.startsWith("/profile") || 
-        path.startsWith("/company")) {
-      
-      // If no token, redirect to sign in
-      if (!token) {
-        const callbackUrl = encodeURIComponent(req.nextUrl.pathname);
-        return NextResponse.redirect(new URL(`/auth/signin?callbackUrl=${callbackUrl}`, req.url));
-      }
-      
-      // Protect admin routes
-      if (path.startsWith("/admin") && token.role !== "admin") {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
-      
-      // Protect company routes
-      if (path.startsWith("/company") && token.role !== "company") {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
-      
-      // Redirect company users to profile creation if accessing candidate profile
-      if (path.startsWith("/profile") && token.role === "company") {
-        return NextResponse.redirect(new URL("/company/profile", req.url));
-      }
-      
-      // Redirect jobseekers to candidate profile if accessing company routes
-      if (path.startsWith("/company") && token.role === "jobseeker") {
-        return NextResponse.redirect(new URL("/profile/candidate", req.url));
-      }
+  // Determine session cookie name based on environment (presence of NEXTAUTH_URL)
+  // Default to secure prefix
+  const cookieName = process.env.NEXTAUTH_URL?.startsWith('https://') 
+    ? '__Secure-next-auth.session-token' 
+    : 'next-auth.session-token';
+
+  const sessionCookie = req.cookies.get(cookieName);
+
+  // Define protected routes
+  const isProtectedRoute = 
+    path.startsWith("/admin") ||
+    path.startsWith("/jobs/apply") ||
+    path.startsWith("/profile") ||
+    path.startsWith("/company");
+
+  // Handle protected routes
+  if (isProtectedRoute) {
+    // If no session cookie, redirect to sign in
+    if (!sessionCookie) {
+      const callbackUrl = encodeURIComponent(req.nextUrl.pathname);
+      // Use req.nextUrl.origin for the base URL to construct the redirect URL
+      const signInUrl = new URL(`/auth/signin?callbackUrl=${callbackUrl}`, req.nextUrl.origin);
+      return NextResponse.redirect(signInUrl);
     }
-    
-    // Handle home page redirection based on role
-    if (path === "/" && token) {
-      if (token.role === "company") {
-        // Company users should be redirected to company dashboard or profile
-        return NextResponse.redirect(new URL("/company/dashboard", req.url));
-      } else if (token.role === "admin") {
-        return NextResponse.redirect(new URL("/admin/dashboard", req.url));
-      }
-    }
-    
-    return NextResponse.next();
-  } catch (error) {
-    console.error("Middleware error:", error);
-    // In case of error, redirect to home page
-    return NextResponse.redirect(new URL("/", req.url));
+    // IMPORTANT: Role checks (admin, company, etc.) must now be done
+    // within the specific page/layout Server Components or API routes
+    // using the auth() helper or getServerSession.
   }
+
+  // Handle logged-in user redirection from home page ("/")
+  // This redirection based on role CANNOT happen reliably here anymore.
+  // It should be handled on the home page component itself.
+  /* 
+  if (path === "/" && sessionCookie) {
+    // Cannot access token.role here. Logic moved to page.
+  }
+  */
+
+  return NextResponse.next();
+  // Removed try/catch as the main source of error (auth() call) is gone.
+  // Basic cookie check is less likely to throw.
 }
 
 export const config = {
   matcher: [
-    "/",
-    "/admin/:path*", 
-    "/jobs/apply/:path*", 
-    "/profile/:path*",
-    "/company/:path*"
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - auth (authentication routes like signin, signout)
+     * - assets (public assets)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|auth|assets).*)',
+    // Include root path explicitly if needed, although the above pattern should cover it
+    // '/',
   ],
 };
