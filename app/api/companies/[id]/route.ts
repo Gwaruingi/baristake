@@ -6,6 +6,8 @@ import { User } from '@/models/User';
 import { Resend } from 'resend';
 import { dbConnect } from '@/lib/mongoose';
 
+export const dynamic = 'force-dynamic'; // Force dynamic rendering
+
 // Define CompanyDocument interface for proper typing
 interface CompanyDocument {
   _id: mongoose.Types.ObjectId;
