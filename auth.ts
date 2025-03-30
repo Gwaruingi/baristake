@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "./pages/api/auth/[...nextauth]";
+import { authOptions } from "./pages/api/auth/[...nextauth].js";
 import { NextAuthOptions } from "next-auth";
 
 // Compatibility layer for NextAuth v4 to work with App Router components
