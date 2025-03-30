@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { auth } from '@/auth';
 import { Company } from '@/models/Company';
 import { User } from '@/models/User';
-import { Resend } from '@resendhq/resend';
+import { Resend } from 'resend';
 import { dbConnect } from '@/lib/mongoose';
 
 // Define CompanyDocument interface for proper typing
