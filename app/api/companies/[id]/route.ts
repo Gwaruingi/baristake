@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { auth } from '@/auth';
 import { Company } from '@/models/Company';
 import { User } from '@/models/User';
-import { getResend } from '@/lib/resend';
+import { Resend } from '@resendhq/resend';
 import { dbConnect } from '@/lib/mongoose';
 
 // Define CompanyDocument interface for proper typing
@@ -25,6 +25,9 @@ interface UserDocument {
   role: string;
   companyName?: string;
 }
+
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const getResend = Resend(RESEND_API_KEY);
 
 // GET a single company by ID
 export async function GET(
@@ -179,11 +182,11 @@ export async function PATCH(
             from: 'Job Portal <noreply@jobportal.com>',
             to: [user.email],
             subject: emailSubject,
-            html: emailHtml
+            html: emailHtml,
           });
-        } catch (emailError) {
-          console.error('Error sending email:', emailError);
-          // Continue even if email fails
+          console.log('Email sent successfully!');
+        } catch (error) {
+          console.error('Error sending email:', error);
         }
       }
     }
