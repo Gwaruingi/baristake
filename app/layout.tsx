@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
+import "./styles/custom.css"; 
 import Navbar from "../components/Navbar";
 import { Toaster } from "@/components/ui/toast";
 import ToastProvider from "@/components/ToastProvider";
@@ -21,13 +22,13 @@ export default async function RootLayout({
   const session = await auth();
   
   return (
-    <html lang="en" className="font-sans">
-      <body className="antialiased min-h-screen flex flex-col">
+    <html lang="en">
+      <body>
         <SessionProvider session={session}>
           {/* Navbar is included here but will be loaded client-side */}
           <Navbar />
-          <div className="flex-grow flex flex-col">
-            <main className="flex-grow">
+          <div>
+            <main>
               {children}
             </main>
           </div>
