@@ -1,5 +1,16 @@
 {
   "cleanUrls": true,
   "ignoreCommand": "node scripts/fix-auth-conflict.js",
-  "buildCommand": "npm run prebuild && npm run build"
+  "buildCommand": "npm run prebuild && npm run build",
+  "functions": {
+    "middleware": {
+      "runtime": "edge",
+      "excludeFiles": [
+        "node_modules/next/dist/compiled/fs/**",
+        "node_modules/next/dist/compiled/path-browserify/**",
+        "node_modules/next/dist/compiled/stream-browserify/**",
+        "node_modules/next/dist/compiled/url/**"
+      ]
+    }
+  }
 }

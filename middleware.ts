@@ -25,6 +25,7 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
+// Update the matcher to be more specific and exclude problematic routes
 export const config = {
   matcher: [
     /*
@@ -36,6 +37,6 @@ export const config = {
      * - auth (authentication routes like signin, signout)
      * - assets (public assets)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|auth|assets).*)',
+    '/((?!api|_next/static|_next/image|_next/data|favicon.ico|auth|assets).*)',
   ],
 };
