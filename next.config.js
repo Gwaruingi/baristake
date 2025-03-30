@@ -19,7 +19,11 @@ const nextConfig = {
       };
     }
     return config;
-  }
+  },
+  // Add output configuration for Vercel
+  output: 'standalone',
+  // Ensure trailing slashes are handled correctly
+  trailingSlash: false
 };
 
 module.exports = nextConfig;
