@@ -3,6 +3,8 @@ import { auth } from '@/auth';
 import dbMonitor, { checkMongoDbHealth } from '@/lib/db-monitor';
 
 // API route to check database status - admin only
+export const dynamic = 'force-dynamic'; // Force dynamic rendering
+
 export async function GET() {
   try {
     // Get the current session
