@@ -1,14 +1,11 @@
 import { NextResponse, NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/auth";
 
 export async function middleware(req: NextRequest) {
   try {
-    // Get the token with the secret from environment variables
-    const token = await getToken({ 
-      req,
-      secret: process.env.NEXTAUTH_SECRET 
-    });
-    
+    const session = await auth(); // Get session using auth()
+    const token = session?.user; // Access user data (including role) from session
+
     const path = req.nextUrl.pathname;
     
     // Handle protected routes
