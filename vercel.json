@@ -4,10 +4,5 @@
   "ignoreCommand": "node scripts/fix-auth-conflict.js",
   "buildCommand": "npm run prebuild && npm run build",
   "framework": "nextjs",
-  "regions": ["fra1"],
-  "routes": [
-    { "src": "/_next/static/(.*)", "dest": "/_next/static/$1", "headers": { "cache-control": "public,max-age=31536000,immutable" } },
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
+  "regions": ["fra1"]
 }
