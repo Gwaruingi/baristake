@@ -5,15 +5,6 @@ const nextConfig = {
     appDir: true,
   },
   pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
-  // Configure rewrites to ensure auth routes use the Pages Router
-  async rewrites() {
-    return [
-      {
-        source: '/api/auth/:path*',
-        destination: '/api/auth/:path*',
-      }
-    ];
-  },
   // Add webpack configuration to handle Node.js modules
   webpack: (config, { isServer }) => {
     if (!isServer) {
