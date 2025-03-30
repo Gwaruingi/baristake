@@ -1,5 +1,4 @@
 import { getServerSession } from "next-auth/next";
-import { signIn as nextAuthSignIn, signOut as nextAuthSignOut } from "next-auth/react";
 import { authOptions } from "./pages/api/auth/[...nextauth]";
 import { NextAuthOptions } from "next-auth";
 
@@ -7,9 +6,6 @@ import { NextAuthOptions } from "next-auth";
 export const auth = async () => {
   return await getServerSession(authOptions as NextAuthOptions);
 };
-
-export const signIn = nextAuthSignIn;
-export const signOut = nextAuthSignOut;
 
 // Mock handlers for compatibility with existing code
 export const handlers = {
