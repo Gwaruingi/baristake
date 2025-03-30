@@ -1,7 +1,45 @@
+'use client';
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import "./styles/custom.css";
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Simulate loading state
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (error) {
+    return (
+      <div className="reed-container py-20 text-center">
+        <h2 className="reed-section-title text-red-600">Error Loading Content</h2>
+        <p className="mb-4">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="reed-button"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="reed-container py-20 text-center">
+        <h2 className="reed-section-title">Loading...</h2>
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* Hero Section */}
@@ -49,138 +87,93 @@ export default function Home() {
             { name: "Marketing", icon: "📊", count: 521 },
             { name: "Hospitality", icon: "🏨", count: 438 },
             { name: "Engineering", icon: "🔧", count: 395 },
-            { name: "Creative Arts", icon: "🎨", count: 287 },
           ].map((category, index) => (
-            <Link
-              href={`/jobs/category/${category.name.toLowerCase()}`}
-              key={index}
-              className="reed-category"
-            >
+            <div key={index} className="reed-category-card">
               <div className="reed-category-icon">{category.icon}</div>
-              <h3 className="reed-category-title">{category.name}</h3>
-              <p className="reed-category-count">{category.count} jobs available</p>
-            </Link>
+              <h3 className="reed-category-name">{category.name}</h3>
+              <p className="reed-category-count">{category.count} jobs</p>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Featured Jobs */}
-      <div className="bg-gray-100 py-16">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <h2 className="text-3xl font-bold mb-8 text-center">Featured Jobs</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Senior Software Engineer",
-                company: "TechCorp",
-                location: "Nairobi, Kenya",
-                type: "Full-time",
-                salary: "$80,000 - $120,000",
-                posted: "2 days ago",
-                logo: "/placeholder-logo.png",
-              },
-              {
-                title: "Marketing Manager",
-                company: "Global Brands",
-                location: "Remote",
-                type: "Full-time",
-                salary: "$65,000 - $85,000",
-                posted: "1 week ago",
-                logo: "/placeholder-logo.png",
-              },
-              {
-                title: "Financial Analyst",
-                company: "Investment Partners",
-                location: "Mombasa, Kenya",
-                type: "Contract",
-                salary: "$70,000 - $90,000",
-                posted: "3 days ago",
-                logo: "/placeholder-logo.png",
-              },
-            ].map((job, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center">
-                    {/* Placeholder for company logo */}
-                    <span className="text-lg font-bold text-gray-500">{job.company.charAt(0)}</span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold mb-1">{job.title}</h3>
-                    <p className="text-gray-700 mb-2">{job.company}</p>
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      <span className="text-sm text-gray-500 flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        {job.location}
-                      </span>
-                      <span className="text-sm text-gray-500 flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        {job.type}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-blue-600 font-medium">{job.salary}</span>
-                      <span className="text-xs text-gray-500">{job.posted}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <Link 
-                    href={`/jobs/${index}`} 
-                    className="block w-full text-center bg-white hover:bg-gray-50 text-blue-600 font-medium py-2 px-4 rounded-md border border-blue-600 transition duration-200"
-                  >
-                    View Details
-                  </Link>
-                </div>
+      {/* Featured Jobs Section */}
+      <div className="reed-container">
+        <h2 className="reed-section-title">Featured Jobs</h2>
+        <div className="reed-jobs-grid">
+          {[
+            {
+              title: "Senior Software Engineer",
+              company: "TechCorp",
+              location: "San Francisco, CA",
+              salary: "$120,000 - $150,000",
+              type: "Full-time"
+            },
+            {
+              title: "Marketing Manager",
+              company: "Brand Solutions",
+              location: "New York, NY",
+              salary: "$80,000 - $95,000",
+              type: "Full-time"
+            },
+            {
+              title: "Data Analyst",
+              company: "Analytics Inc",
+              location: "Chicago, IL",
+              salary: "$70,000 - $85,000",
+              type: "Full-time"
+            },
+            {
+              title: "UX/UI Designer",
+              company: "Creative Studio",
+              location: "Remote",
+              salary: "$90,000 - $110,000",
+              type: "Contract"
+            },
+          ].map((job, index) => (
+            <div key={index} className="reed-job-card">
+              <h3 className="reed-job-title">{job.title}</h3>
+              <p className="reed-job-company">{job.company}</p>
+              <p className="reed-job-location">{job.location}</p>
+              <p className="reed-job-salary">{job.salary}</p>
+              <div className="reed-job-footer">
+                <span className="reed-job-type">{job.type}</span>
+                <Link href="/jobs/1" className="reed-job-link">
+                  View Details
+                </Link>
               </div>
-            ))}
-          </div>
-          <div className="text-center mt-10">
-            <Link 
-              href="/jobs" 
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-md transition duration-200"
-            >
-              Browse All Jobs
-            </Link>
-          </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* How It Works */}
-      <div className="container mx-auto px-4 py-16 max-w-7xl">
-        <h2 className="text-3xl font-bold mb-12 text-center">How It Works</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
+      {/* Why Choose Us */}
+      <div className="reed-container">
+        <h2 className="reed-section-title">Why Choose Our Job Portal</h2>
+        <div className="reed-features">
+          {[
+            {
+              title: "Thousands of Jobs",
+              description: "Access thousands of job listings from top companies around the world."
+            },
+            {
+              title: "Verified Employers",
+              description: "All employers on our platform are verified to ensure legitimate job opportunities."
+            },
+            {
+              title: "Easy Application",
+              description: "Apply to multiple jobs with just a few clicks using your saved profile."
+            },
+            {
+              title: "Career Resources",
+              description: "Access resume tips, interview guides, and career advice from industry experts."
+            }
+          ].map((feature, index) => (
+            <div key={index} className="reed-feature-card">
+              <h3 className="reed-feature-title">{feature.title}</h3>
+              <p className="reed-feature-description">{feature.description}</p>
             </div>
-            <h3 className="text-xl font-semibold mb-2">Search Jobs</h3>
-            <p className="text-gray-600">Find the perfect job that matches your skills and experience.</p>
-          </div>
-          <div className="text-center">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Apply Online</h3>
-            <p className="text-gray-600">Submit your application with just a few clicks.</p>
-          </div>
-          <div className="text-center">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Get Hired</h3>
-            <p className="text-gray-600">Start your new career journey with your dream job.</p>
-          </div>
+          ))}
         </div>
       </div>
     </div>
