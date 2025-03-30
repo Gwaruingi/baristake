@@ -1,10 +1,4 @@
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
   "cleanUrls": true,
   "ignoreCommand": "node scripts/fix-auth-conflict.js",
   "buildCommand": "npm run prebuild && npm run build"
