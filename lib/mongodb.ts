@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, MongoClientOptions } from 'mongodb';
 
 // Safely check for MongoDB URI
 const uri = process.env.MONGODB_URI || '';
@@ -7,20 +7,19 @@ if (!uri) {
 }
 
 // Enhanced connection options
-const options = {
+const options: MongoClientOptions = {
   connectTimeoutMS: 30000,
   socketTimeoutMS: 45000,
   serverSelectionTimeoutMS: 30000,
   maxPoolSize: 50,
   retryWrites: true,
-  w: 'majority',
 };
 
 let client;
 let clientPromise: Promise<MongoClient>;
 
 // Connection function with retry logic
-const connectWithRetry = async (uri: string, options: any, retries = 5, delay = 5000): Promise<MongoClient> => {
+const connectWithRetry = async (uri: string, options: MongoClientOptions, retries = 5, delay = 5000): Promise<MongoClient> => {
   try {
     const client = new MongoClient(uri, options);
     return await client.connect();
