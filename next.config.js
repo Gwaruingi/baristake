@@ -5,11 +5,6 @@ const nextConfig = {
     appDir: true,
   },
   pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
-  // Explicitly exclude the conflicting files
-  excludeFiles: [
-    'app/api/auth/[...nextauth]/route.ts',
-    'app/page.tsx'
-  ],
   // Configure rewrites to ensure auth routes use the Pages Router
   async rewrites() {
     return [
