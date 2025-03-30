@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 
-export async function middleware(req: NextRequest) {
+// This is a simplified middleware that should work with Vercel Edge Runtime
+export function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   // Check for session cookie - try both secure and non-secure versions
@@ -17,26 +18,22 @@ export async function middleware(req: NextRequest) {
 
   // Handle protected routes
   if (isProtectedRoute && !hasSessionCookie) {
-    const callbackUrl = encodeURIComponent(req.nextUrl.pathname);
-    const signInUrl = new URL(`/auth/signin?callbackUrl=${callbackUrl}`, req.nextUrl.origin);
-    return NextResponse.redirect(signInUrl);
+    // Create a new URL for redirection
+    const url = req.nextUrl.clone();
+    url.pathname = "/auth/signin";
+    url.searchParams.set("callbackUrl", req.nextUrl.pathname);
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
 }
 
-// Update the matcher to be more specific and exclude problematic routes
+// Limit middleware to specific paths to avoid issues
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - auth (authentication routes like signin, signout)
-     * - assets (public assets)
-     */
-    '/((?!api|_next/static|_next/image|_next/data|favicon.ico|auth|assets).*)',
-  ],
+    '/admin/:path*',
+    '/jobs/apply/:path*',
+    '/profile/:path*',
+    '/company/:path*'
+  ]
 };
