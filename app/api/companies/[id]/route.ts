@@ -27,7 +27,6 @@ interface UserDocument {
 }
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const getResend = new Resend(RESEND_API_KEY);
 
 // GET a single company by ID
 export async function GET(
@@ -177,6 +176,7 @@ export async function PATCH(
       }
       
       if (emailSubject && emailHtml) {
+        const getResend = new Resend(RESEND_API_KEY);
         try {
           await getResend.emails.send({
             from: 'Job Portal <noreply@jobportal.com>',
