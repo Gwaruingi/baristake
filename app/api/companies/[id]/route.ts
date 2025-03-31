@@ -27,7 +27,7 @@ interface UserDocument {
 }
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const getResend = Resend(RESEND_API_KEY);
+const getResend = new Resend(RESEND_API_KEY);
 
 // GET a single company by ID
 export async function GET(
