@@ -121,7 +121,9 @@ export default function SimpleNavbar() {
                 Dashboard
               </Link>
               <button 
-                onClick={() => signOut()} 
+                onClick={() => signOut({ 
+                  callbackUrl: window.location.origin 
+                })} 
                 style={buttonStyle}
               >
                 Sign Out
@@ -165,7 +167,9 @@ export default function SimpleNavbar() {
                 Dashboard
               </Link>
               <button 
-                onClick={() => signOut()} 
+                onClick={() => signOut({ 
+                  callbackUrl: window.location.origin 
+                })} 
                 style={buttonStyle}
               >
                 Sign Out
