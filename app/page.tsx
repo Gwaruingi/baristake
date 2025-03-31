@@ -36,7 +36,13 @@ export default function HomePage() {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/jobs');
+        // Use absolute URL for API calls to ensure it works in all environments
+        const baseUrl = window.location.origin;
+        const response = await fetch(`${baseUrl}/api/jobs?status=active&limit=5`, {
+          // Add cache control to prevent stale data
+          cache: 'no-store'
+        });
+        
         if (!response.ok) {
           throw new Error('Failed to fetch jobs');
         }
@@ -45,6 +51,8 @@ export default function HomePage() {
       } catch (err) {
         setError('Error loading jobs. Please try again later.');
         console.error('Error fetching jobs:', err);
+        // Set empty array to ensure UI renders even if API fails
+        setJobs([]);
       } finally {
         setLoading(false);
       }
@@ -55,7 +63,6 @@ export default function HomePage() {
 
   // Get only active jobs and limit to 5 recent ones
   const recentJobs = jobs
-    .filter(job => job.status === 'active')
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
 
