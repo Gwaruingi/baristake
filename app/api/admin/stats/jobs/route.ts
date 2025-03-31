@@ -3,8 +3,6 @@ import mongoose from "mongoose";
 import { auth } from "@/auth";
 import { Job } from "@/models/Job";
 
-export const dynamic = 'force-dynamic'; // Force dynamic rendering
-
 // Ensure database connection
 async function ensureDbConnected() {
   if (!mongoose.connection.readyState) {

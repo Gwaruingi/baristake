@@ -1,28 +1,20 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-});
-
-type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [email, setEmail] = useState('');
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ForgotPasswordData>({
-    resolver: zodResolver(forgotPasswordSchema),
-  });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      setStatus('error');
+      setMessage('Please enter your email address');
+      return;
+    }
 
-  const onSubmit = async (data: ForgotPasswordData) => {
     try {
       setIsLoading(true);
       setStatus('idle');
@@ -31,7 +23,7 @@ export default function ForgotPasswordForm() {
       const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ email }),
       });
 
       const result = await response.json();
@@ -51,57 +43,131 @@ export default function ForgotPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-md space-y-8">
+    <div style={{
+      width: '100%',
+      maxWidth: '440px',
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      padding: '32px',
+    }}>
       <div>
-        <h2 className="text-center text-3xl font-bold tracking-tight">
+        <h2 style={{
+          textAlign: 'center',
+          fontSize: '24px',
+          fontWeight: '700',
+          marginBottom: '16px',
+          color: '#111827'
+        }}>
           Reset your password
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p style={{
+          textAlign: 'center',
+          fontSize: '14px',
+          color: '#6b7280',
+          marginBottom: '24px'
+        }}>
           Enter your email address and we'll send you instructions to reset your password.
         </p>
       </div>
 
       {status !== 'idle' && (
         <div
-          className={`p-4 rounded-md ${
-            status === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-          }`}
+          style={{
+            padding: '12px',
+            borderRadius: '6px',
+            marginBottom: '16px',
+            fontSize: '14px',
+            backgroundColor: status === 'success' ? '#f0fdf4' : '#fee2e2',
+            color: status === 'success' ? '#166534' : '#b91c1c',
+            borderLeft: status === 'success' ? '4px solid #22c55e' : '4px solid #d71921'
+          }}
         >
           {message}
         </div>
       )}
 
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+      <form style={{ marginTop: '24px' }} onSubmit={handleSubmit}>
+        <div style={{ marginBottom: '24px' }}>
+          <label 
+            htmlFor="email" 
+            style={{
+              display: 'block',
+              marginBottom: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#333'
+            }}
+          >
             Email address
           </label>
           <input
-            {...register('email')}
+            id="email"
             type="email"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: '6px',
+              border: '1px solid #d1d5db',
+              fontSize: '15px',
+              outline: 'none',
+              transition: 'border-color 0.2s',
+            }}
             placeholder="you@example.com"
           />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-          )}
         </div>
 
         <div>
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            style={{
+              position: 'relative',
+              display: 'flex',
+              width: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: '12px',
+              backgroundColor: '#d71921',
+              color: 'white',
+              fontSize: '15px',
+              fontWeight: '500',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              opacity: isLoading ? 0.7 : 1,
+              transition: 'background-color 0.2s',
+            }}
+            onMouseOver={(e) => {
+              if (!isLoading) e.currentTarget.style.backgroundColor = '#b91c1c';
+            }}
+            onMouseOut={(e) => {
+              if (!isLoading) e.currentTarget.style.backgroundColor = '#d71921';
+            }}
           >
             {isLoading ? 'Sending...' : 'Send reset instructions'}
           </button>
         </div>
       </form>
 
-      <div className="text-sm text-center">
+      <div style={{ 
+        marginTop: '24px',
+        textAlign: 'center',
+        fontSize: '14px',
+        color: '#4b5563'
+      }}>
         <a
           href="/auth/signin"
-          className="font-medium text-indigo-600 hover:text-indigo-500"
+          style={{
+            fontWeight: '500',
+            color: '#d71921',
+            textDecoration: 'none',
+            transition: 'color 0.2s'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.color = '#b91c1c'}
+          onMouseOut={(e) => e.currentTarget.style.color = '#d71921'}
         >
           Back to sign in
         </a>

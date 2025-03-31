@@ -6,8 +6,6 @@ import { User } from '@/models/User';
 import { Resend } from 'resend';
 import { dbConnect } from '@/lib/mongoose';
 
-export const dynamic = 'force-dynamic'; // Force dynamic rendering
-
 // Define CompanyDocument interface for proper typing
 interface CompanyDocument {
   _id: mongoose.Types.ObjectId;
@@ -29,6 +27,7 @@ interface UserDocument {
 }
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const getResend = Resend(RESEND_API_KEY);
 
 // GET a single company by ID
 export async function GET(
@@ -178,7 +177,6 @@ export async function PATCH(
       }
       
       if (emailSubject && emailHtml) {
-        const getResend = new Resend(RESEND_API_KEY);
         try {
           await getResend.emails.send({
             from: 'Job Portal <noreply@jobportal.com>',

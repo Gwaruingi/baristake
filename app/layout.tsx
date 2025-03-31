@@ -1,50 +1,37 @@
-import type { Metadata } from "next";
-import { auth } from "@/auth";
-import { SessionProvider } from "next-auth/react";
-import "./globals.css";
-import "./styles/custom.css"; 
-import Navbar from "../components/Navbar";
-import { Toaster } from "@/components/ui/toast";
-import ToastProvider from "@/components/ToastProvider";
-import { ErrorBoundary } from "../components/ErrorBoundary";
-
-// comments
+import type { Metadata } from 'next';
+import './globals.css';
+import SimpleNavbar from '@/components/SimpleNavbar';
+import ClientProviders from '@/components/providers/ClientProviders';
 
 export const metadata: Metadata = {
-  title: "Job Portal - Find Your Next Career Opportunity",
-  description: "A modern job portal connecting talented professionals with great companies",
+  title: 'Job Portal',
+  description: 'Find your next job',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Wrap auth in try/catch to prevent 500 errors if auth fails
-  let session = null;
-  try {
-    session = await auth();
-  } catch (error) {
-    console.error("Authentication error:", error);
-    // Continue with null session - the app will still render
-  }
-  
   return (
     <html lang="en">
-      <body>
-        <SessionProvider session={session}>
-          {/* Navbar is included here but will be loaded client-side */}
-          <Navbar />
-          <div className="min-h-screen">
-            <ErrorBoundary>
-              <main>
-                {children}
-              </main>
-            </ErrorBoundary>
-          </div>
-          <Toaster />
-          <ToastProvider />
-        </SessionProvider>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body style={{ 
+        margin: 0, 
+        padding: 0, 
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+        minHeight: '100vh', 
+        display: 'flex', 
+        flexDirection: 'column' 
+      }}>
+        <ClientProviders>
+          <SimpleNavbar />
+          <main style={{ flexGrow: 1 }}>
+            {children}
+          </main>
+        </ClientProviders>
       </body>
     </html>
   );

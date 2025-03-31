@@ -9,8 +9,19 @@ export default async function SignInPage() {
     redirect("/");
   }
 
+  // Styles
+  const pageStyle = {
+    minHeight: 'calc(100vh - 60px)',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '2rem 1rem',
+    backgroundColor: '#f9fafb'
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <div style={pageStyle}>
       <AuthForm />
     </div>
   );

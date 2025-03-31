@@ -2,12 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-interface Salary {
-  min: number;
-  max: number;
-  currency: string;
-}
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface Job {
   _id: string;
@@ -16,42 +11,40 @@ interface Job {
   companyName?: string;
   location: string;
   description: string;
-  requirements: string[];
-  salary: Salary;
-  type: 'full-time' | 'part-time' | 'contract' | 'internship';
+  salary: {
+    min: number;
+    max: number;
+    currency: string;
+  };
+  type: string;
   jobType?: string;
-  status: 'active' | 'closed';
+  status: string;
   createdAt: string;
 }
 
-interface JobsResponse {
-  jobs: Job[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    pages: number;
-  };
-}
-
 export default function JobsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState({
-    company: '',
-    type: '',
-    status: 'active'
-  });
+  
+  const [searchTerm, setSearchTerm] = useState(searchParams?.get('search') || '');
+  const [location, setLocation] = useState(searchParams?.get('location') || '');
+  const [companyFilter, setCompanyFilter] = useState(searchParams?.get('company') || '');
+  const [typeFilter, setTypeFilter] = useState(searchParams?.get('type') || '');
+  const [statusFilter, setStatusFilter] = useState(searchParams?.get('status') || 'active');
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
+        setLoading(true);
         const response = await fetch('/api/jobs');
         if (!response.ok) {
           throw new Error('Failed to fetch jobs');
         }
-        const data: JobsResponse = await response.json();
+        const data = await response.json();
         setJobs(data.jobs || []);
       } catch (err) {
         setError('Error loading jobs. Please try again later.');
@@ -66,28 +59,229 @@ export default function JobsPage() {
 
   const filteredJobs = jobs.filter(job => {
     return (
-      (filter.company === '' || job.company === filter.company || job.companyName === filter.company) &&
-      (filter.type === '' || job.type === filter.type || job.jobType === filter.type) &&
-      (filter.status === '' || job.status === filter.status)
+      (companyFilter === '' || job.company === companyFilter || job.companyName === companyFilter) &&
+      (typeFilter === '' || job.type === typeFilter || job.jobType === typeFilter) &&
+      (statusFilter === '' || job.status === statusFilter) &&
+      (searchTerm === '' || 
+        job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        job.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (location === '' || 
+        job.location.toLowerCase().includes(location.toLowerCase()))
     );
   });
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFilter(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Update URL with search parameters
+    const params = new URLSearchParams();
+    if (searchTerm) params.set('search', searchTerm);
+    if (location) params.set('location', location);
+    if (companyFilter) params.set('company', companyFilter);
+    if (typeFilter) params.set('type', typeFilter);
+    if (statusFilter) params.set('status', statusFilter);
+    
+    router.push(`/jobs?${params.toString()}`);
+  };
+
+  // Get unique companies and job types for filters
+  const companies = Array.from(new Set(jobs.map(job => job.company || job.companyName))).filter(Boolean);
+  const jobTypes = Array.from(new Set(jobs.map(job => job.type || job.jobType))).filter(Boolean);
+
+  const formatSalary = (salary: any) => {
+    if (!salary || (!salary.min && !salary.max)) return 'Competitive';
+    
+    const currency = salary.currency || '£';
+    if (salary.min && salary.max) {
+      return `${currency}${salary.min.toLocaleString()} - ${currency}${salary.max.toLocaleString()}`;
+    } else if (salary.min) {
+      return `${currency}${salary.min.toLocaleString()}+`;
+    } else if (salary.max) {
+      return `Up to ${currency}${salary.max.toLocaleString()}`;
+    }
+    
+    return 'Competitive';
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  // Styles
+  const pageStyle = {
+    minHeight: '100vh',
+    backgroundColor: '#f9fafb'
+  };
+
+  const heroStyle = {
+    backgroundColor: '#d71921',
+    padding: '1.5rem 0'
+  };
+
+  const containerStyle = {
+    maxWidth: '1280px',
+    margin: '0 auto',
+    padding: '0 1rem'
+  };
+
+  const headingStyle = {
+    fontSize: '1.5rem',
+    fontWeight: 'bold' as const,
+    color: 'white',
+    marginBottom: '1rem'
+  };
+
+  const formStyle = {
+    backgroundColor: 'white',
+    padding: '1rem',
+    borderRadius: '0.25rem'
+  };
+
+  const formGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '0.5rem'
+  };
+
+  const inputContainerStyle = {
+    position: 'relative' as const
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '0.5rem',
+    borderRadius: '0.25rem',
+    border: '1px solid #d1d5db',
+    fontSize: '0.875rem'
+  };
+
+  const buttonStyle = {
+    backgroundColor: '#d71921',
+    color: 'white',
+    fontWeight: '600' as const,
+    padding: '0.5rem 1rem',
+    borderRadius: '0.25rem',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '0.875rem'
+  };
+
+  const filtersContainerStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '1rem',
+    flexWrap: 'wrap' as const,
+    gap: '0.5rem'
+  };
+
+  const filtersStyle = {
+    display: 'flex',
+    gap: '0.5rem',
+    flexWrap: 'wrap' as const
+  };
+
+  const selectStyle = {
+    padding: '0.5rem',
+    borderRadius: '0.25rem',
+    border: '1px solid #d1d5db',
+    backgroundColor: 'white',
+    fontSize: '0.875rem'
+  };
+
+  const jobCardStyle = {
+    backgroundColor: 'white',
+    borderRadius: '0.25rem',
+    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    marginBottom: '1rem',
+    borderLeft: '4px solid #d71921',
+    padding: '1rem'
+  };
+
+  const jobTitleStyle = {
+    fontSize: '1.125rem',
+    fontWeight: '600' as const,
+    color: '#d71921',
+    marginBottom: '0.25rem',
+    textDecoration: 'none'
+  };
+
+  const companyStyle = {
+    color: '#374151',
+    fontWeight: '500' as const,
+    marginBottom: '0.5rem',
+    fontSize: '0.875rem'
+  };
+
+  const jobMetaStyle = {
+    display: 'flex',
+    flexWrap: 'wrap' as const,
+    gap: '1rem',
+    fontSize: '0.75rem',
+    color: '#6b7280',
+    marginBottom: '0.75rem'
+  };
+
+  const jobDescriptionStyle = {
+    color: '#4b5563',
+    marginBottom: '1rem',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical' as const,
+    fontSize: '0.875rem'
+  };
+
+  const salaryStyle = {
+    fontSize: '1rem',
+    fontWeight: '600' as const,
+    color: '#d71921',
+    marginBottom: '0.5rem'
+  };
+
+  const viewJobButtonStyle = {
+    display: 'inline-block',
+    backgroundColor: '#d71921',
+    color: 'white',
+    fontWeight: '500' as const,
+    padding: '0.5rem 1rem',
+    borderRadius: '0.25rem',
+    textDecoration: 'none',
+    fontSize: '0.875rem'
+  };
+
+  const jobCountStyle = {
+    fontSize: '0.875rem',
+    color: '#6b7280',
+    marginBottom: '1rem'
   };
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Job Listings</h1>
-        <div className="animate-pulse">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="bg-gray-100 p-6 rounded-lg mb-4 h-40"></div>
-          ))}
+      <div style={pageStyle}>
+        <div style={heroStyle}>
+          <div style={containerStyle}>
+            <h1 style={headingStyle}>Find your perfect job</h1>
+            <div style={{...formStyle, height: '4rem'}}></div>
+          </div>
+        </div>
+        <div style={{...containerStyle, paddingTop: '1rem'}}>
+          <div style={{display: 'flex', flexDirection: 'column' as const, gap: '1rem'}}>
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{...jobCardStyle, height: '8rem'}}></div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -95,124 +289,157 @@ export default function JobsPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Job Listings</h1>
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error}
+      <div style={pageStyle}>
+        <div style={heroStyle}>
+          <div style={containerStyle}>
+            <h1 style={headingStyle}>Find your perfect job</h1>
+          </div>
+        </div>
+        <div style={{...containerStyle, paddingTop: '1rem'}}>
+          <div style={{
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fee2e2',
+            color: '#b91c1c',
+            padding: '0.75rem 1rem',
+            borderRadius: '0.25rem'
+          }}>
+            {error}
+          </div>
         </div>
       </div>
     );
   }
 
-  // Get unique companies and job types for filters
-  const companies = Array.from(new Set(jobs.map(job => job.company || job.companyName))).filter(Boolean);
-  const jobTypes = Array.from(new Set(jobs.map(job => job.type || job.jobType))).filter(Boolean);
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Job Listings</h1>
-      
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
-            Company
-          </label>
-          <select
-            id="company"
-            name="company"
-            value={filter.company}
-            onChange={handleFilterChange}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            <option value="">All Companies</option>
-            {companies.map(company => (
-              <option key={company} value={company}>
-                {company}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div>
-          <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-            Job Type
-          </label>
-          <select
-            id="type"
-            name="type"
-            value={filter.type}
-            onChange={handleFilterChange}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            <option value="">All Types</option>
-            {jobTypes.map(type => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-            Status
-          </label>
-          <select
-            id="status"
-            name="status"
-            value={filter.status}
-            onChange={handleFilterChange}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            <option value="">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="closed">Closed</option>
-          </select>
+    <div style={pageStyle}>
+      {/* Hero search section */}
+      <div style={heroStyle}>
+        <div style={containerStyle}>
+          <h1 style={headingStyle}>Find your perfect job</h1>
+          
+          <form onSubmit={handleSearch} style={formStyle}>
+            <div style={formGridStyle}>
+              <div style={inputContainerStyle}>
+                <input
+                  type="text"
+                  placeholder="Job title, skills or keywords"
+                  style={inputStyle}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              
+              <div style={inputContainerStyle}>
+                <input
+                  type="text"
+                  placeholder="Location"
+                  style={inputStyle}
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+              
+              <button type="submit" style={buttonStyle}>
+                Search Jobs
+              </button>
+            </div>
+          </form>
         </div>
       </div>
       
-      {/* Job listings */}
-      {filteredJobs.length === 0 ? (
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded">
-          No jobs found matching your criteria.
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredJobs.map(job => (
-            <div key={job._id} className="bg-white p-6 rounded-lg shadow">
-              <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
-                <div>
-                  <h2 className="text-xl font-semibold">{job.title}</h2>
-                  <p className="text-gray-600">{job.company || job.companyName}</p>
-                </div>
-                <div className="mt-2 md:mt-0">
-                  <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${
-                    job.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
-                    {job.status}
-                  </span>
-                  <span className="inline-block ml-2 px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800">
-                    {job.type || job.jobType}
-                  </span>
-                </div>
-              </div>
-              
-              <p className="text-gray-700 mb-4 line-clamp-2">{job.description}</p>
-              
-              <div className="flex justify-between items-center">
-                <p className="text-gray-600">{job.location}</p>
-                <Link
-                  href={`/jobs/${job._id}`}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  View Job
-                </Link>
-              </div>
+      <div style={{...containerStyle, paddingTop: '1rem'}}>
+        {/* Filters */}
+        <div style={filtersContainerStyle}>
+          <div style={filtersStyle}>
+            <div>
+              <select
+                value={companyFilter}
+                onChange={(e) => setCompanyFilter(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">All Companies</option>
+                {companies.map((company, index) => (
+                  <option key={index} value={company as string}>
+                    {company}
+                  </option>
+                ))}
+              </select>
             </div>
-          ))}
+            
+            <div>
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">All Types</option>
+                {jobTypes.map((type, index) => (
+                  <option key={index} value={type as string}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="closed">Closed</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+          </div>
         </div>
-      )}
+        
+        {/* Job count */}
+        <div style={jobCountStyle}>
+          {filteredJobs.length} jobs found
+        </div>
+        
+        {/* Job listings */}
+        {filteredJobs.length > 0 ? (
+          <div>
+            {filteredJobs.map((job) => (
+              <div key={job._id} style={jobCardStyle}>
+                <Link href={`/jobs/${job._id}`} style={{ textDecoration: 'none' }}>
+                  <h2 style={jobTitleStyle}>{job.title}</h2>
+                </Link>
+                <p style={companyStyle}>{job.company || job.companyName}</p>
+                
+                <div style={jobMetaStyle}>
+                  <span>{job.location}</span>
+                  <span>{job.type || job.jobType}</span>
+                  <span>{formatDate(job.createdAt)}</span>
+                </div>
+                
+                <p style={jobDescriptionStyle}>{job.description}</p>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <p style={salaryStyle}>{formatSalary(job.salary)}</p>
+                  
+                  <Link href={`/jobs/${job._id}`} style={viewJobButtonStyle}>
+                    View Job
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{
+            backgroundColor: '#f3f4f6',
+            padding: '2rem',
+            borderRadius: '0.25rem',
+            textAlign: 'center' as const
+          }}>
+            <p style={{ color: '#6b7280' }}>No jobs found matching your criteria. Try adjusting your filters.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

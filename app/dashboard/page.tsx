@@ -194,33 +194,322 @@ export default function Dashboard() {
     window.history.pushState({}, '', newUrl.toString());
   };
   
-  // Get status badge color
-  const getStatusColor = (status: string) => {
+  // Helper function for status colors
+  function getStatusBgColor(status: string) {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return '#fef9c3';
       case 'reviewed':
-        return 'bg-blue-100 text-blue-800';
+        return '#dbeafe';
       case 'shortlisted':
-        return 'bg-indigo-100 text-indigo-800';
+        return '#e0e7ff';
       case 'interview':
-        return 'bg-purple-100 text-purple-800';
+        return '#f3e8ff';
       case 'hired':
-        return 'bg-green-100 text-green-800';
+        return '#dcfce7';
       case 'rejected':
-        return 'bg-red-100 text-red-800';
+        return '#fee2e2';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return '#f3f4f6';
     }
+  }
+
+  function getStatusTextColor(status: string) {
+    switch (status) {
+      case 'pending':
+        return '#854d0e';
+      case 'reviewed':
+        return '#1e40af';
+      case 'shortlisted':
+        return '#3730a3';
+      case 'interview':
+        return '#6b21a8';
+      case 'hired':
+        return '#166534';
+      case 'rejected':
+        return '#b91c1c';
+      default:
+        return '#4b5563';
+    }
+  }
+
+  // Styles
+  const pageStyle = {
+    backgroundColor: '#f9fafb',
+    minHeight: 'calc(100vh - 60px)',
+    paddingBottom: '2rem'
+  };
+
+  const containerStyle = {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '1.5rem 1rem'
+  };
+
+  const headingStyle = {
+    fontSize: '1.5rem',
+    fontWeight: '700' as const,
+    marginBottom: '1.5rem',
+    color: '#111827'
+  };
+
+  const subHeadingStyle = {
+    fontSize: '1.25rem',
+    fontWeight: '600' as const,
+    marginBottom: '1rem',
+    color: '#111827'
+  };
+
+  const cardStyle = {
+    backgroundColor: 'white',
+    borderRadius: '0.25rem',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+    overflow: 'hidden',
+    marginBottom: '1.5rem'
+  };
+
+  const cardHeaderStyle = {
+    padding: '1rem',
+    borderBottom: '1px solid #e5e7eb',
+    backgroundColor: '#f9fafb'
+  };
+
+  const cardBodyStyle = {
+    padding: '1rem'
+  };
+
+  const emptyStateStyle = {
+    backgroundColor: 'white',
+    borderRadius: '0.25rem',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+    padding: '1.5rem',
+    textAlign: 'center' as const,
+    color: '#6b7280'
+  };
+
+  const filterContainerStyle = {
+    display: 'flex',
+    flexWrap: 'wrap' as const,
+    gap: '0.5rem',
+    marginBottom: '1rem'
+  };
+
+  const filterButtonStyle = {
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    borderRadius: '0.25rem',
+    border: '1px solid #e5e7eb',
+    backgroundColor: 'white',
+    cursor: 'pointer'
+  };
+
+  const activeFilterButtonStyle = {
+    ...filterButtonStyle,
+    backgroundColor: '#d71921',
+    color: 'white',
+    borderColor: '#d71921'
+  };
+
+  const notificationItemStyle = {
+    padding: '1rem',
+    borderBottom: '1px solid #e5e7eb',
+    transition: 'background-color 0.2s'
+  };
+
+  const unreadNotificationStyle = {
+    ...notificationItemStyle,
+    backgroundColor: '#f0f9ff',
+    borderLeft: '4px solid #d71921'
+  };
+
+  const notificationTitleStyle = {
+    fontSize: '0.875rem',
+    fontWeight: '500' as const,
+    marginBottom: '0.25rem',
+    color: '#111827'
+  };
+
+  const notificationMessageStyle = {
+    fontSize: '0.875rem',
+    color: '#4b5563',
+    marginBottom: '0.25rem'
+  };
+
+  const notificationDateStyle = {
+    fontSize: '0.75rem',
+    color: '#6b7280'
+  };
+
+  const applicationCardStyle = {
+    backgroundColor: 'white',
+    borderRadius: '0.25rem',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+    marginBottom: '1rem',
+    overflow: 'hidden',
+    borderLeft: '4px solid #d71921'
+  };
+
+  const applicationHeaderStyle = {
+    padding: '1rem',
+    borderBottom: '1px solid #e5e7eb'
+  };
+
+  const applicationTitleStyle = {
+    fontSize: '1rem',
+    fontWeight: '600' as const,
+    color: '#d71921',
+    marginBottom: '0.25rem'
+  };
+
+  const applicationCompanyStyle = {
+    fontSize: '0.875rem',
+    color: '#4b5563',
+    marginBottom: '0.5rem'
+  };
+
+  const applicationMetaStyle = {
+    display: 'flex',
+    flexWrap: 'wrap' as const,
+    gap: '0.5rem',
+    marginBottom: '0.5rem'
+  };
+
+  const applicationMetaItemStyle = {
+    fontSize: '0.75rem',
+    color: '#6b7280',
+    display: 'flex',
+    alignItems: 'center'
+  };
+
+  const applicationStatusStyle = (status: string) => ({
+    display: 'inline-block',
+    padding: '0.25rem 0.5rem',
+    borderRadius: '9999px',
+    fontSize: '0.75rem',
+    fontWeight: '500' as const,
+    backgroundColor: getStatusBgColor(status),
+    color: getStatusTextColor(status)
+  });
+
+  const buttonStyle = {
+    backgroundColor: '#d71921',
+    color: 'white',
+    fontWeight: '500' as const,
+    padding: '0.5rem 0.75rem',
+    borderRadius: '0.25rem',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '0.875rem',
+    textDecoration: 'none'
+  };
+
+  const secondaryButtonStyle = {
+    backgroundColor: 'white',
+    color: '#374151',
+    fontWeight: '500' as const,
+    padding: '0.5rem 0.75rem',
+    borderRadius: '0.25rem',
+    border: '1px solid #d1d5db',
+    cursor: 'pointer',
+    fontSize: '0.875rem',
+    textDecoration: 'none'
+  };
+
+  const modalOverlayStyle = {
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 50
+  };
+
+  const modalContentStyle = {
+    backgroundColor: 'white',
+    borderRadius: '0.25rem',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    width: '90%',
+    maxWidth: '600px',
+    maxHeight: '90vh',
+    overflow: 'auto'
+  };
+
+  const modalHeaderStyle = {
+    padding: '1rem',
+    borderBottom: '1px solid #e5e7eb',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  };
+
+  const modalBodyStyle = {
+    padding: '1rem'
+  };
+
+  const modalFooterStyle = {
+    padding: '1rem',
+    borderTop: '1px solid #e5e7eb',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '0.5rem'
+  };
+
+  const timelineStyle = {
+    position: 'relative' as const,
+    marginLeft: '1rem',
+    paddingLeft: '1.5rem',
+    borderLeft: '2px solid #e5e7eb'
+  };
+
+  const timelineItemStyle = {
+    position: 'relative' as const,
+    paddingBottom: '1.5rem'
+  };
+
+  const timelineDotStyle = (status: string) => ({
+    position: 'absolute' as const,
+    left: '-1.625rem',
+    top: 0,
+    width: '1rem',
+    height: '1rem',
+    borderRadius: '50%',
+    backgroundColor: getStatusBgColor(status),
+    border: `2px solid ${getStatusTextColor(status)}`
+  });
+
+  const loadingSpinnerStyle = {
+    width: '2.5rem',
+    height: '2.5rem',
+    border: '0.25rem solid #f3f3f3',
+    borderTop: '0.25rem solid #d71921',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite'
   };
   
   // If session is loading, show loading state
   if (sessionStatus === 'loading') {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">My Applications</h1>
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div style={pageStyle}>
+        <div style={containerStyle}>
+          <h1 style={headingStyle}>My Applications</h1>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '200px'
+          }}>
+            <div style={loadingSpinnerStyle}></div>
+            <style jsx>{`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
         </div>
       </div>
     );
@@ -232,243 +521,346 @@ export default function Dashboard() {
   }
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">My Applications</h1>
-      
-      {/* Notifications Section */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Recent Notifications</h2>
-        {notifications.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-4 text-gray-500">
-            No notifications yet.
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            {notifications.slice(0, 5).map((notification) => (
-              <div 
-                key={notification._id} 
-                className={`p-4 border-b ${!notification.read ? 'bg-blue-50' : ''}`}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-medium">{notification.title}</h3>
-                    <p className="text-sm text-gray-600">{notification.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {format(new Date(notification.createdAt), 'MMM d, yyyy h:mm a')}
-                    </p>
-                  </div>
-                  <div className="flex items-center">
-                    {notification.type === 'application_status' && notification.relatedId && (
-                      <button
-                        onClick={() => {
-                          const app = applications.find(a => a._id === notification.relatedId);
-                          if (app) {
-                            openHistoryModal(app);
-                          }
-                          if (!notification.read) {
-                            markNotificationAsRead(notification._id);
-                          }
-                        }}
-                        className="text-xs text-blue-600 hover:text-blue-800 mr-3"
-                      >
-                        View Details
-                      </button>
-                    )}
+    <div style={pageStyle}>
+      <div style={containerStyle}>
+        <h1 style={headingStyle}>My Applications</h1>
+        
+        {/* Notifications Section */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={subHeadingStyle}>Recent Notifications</h2>
+          {notifications.length === 0 ? (
+            <div style={emptyStateStyle}>
+              No notifications yet.
+            </div>
+          ) : (
+            <div style={cardStyle}>
+              {notifications.slice(0, 5).map((notification) => (
+                <div 
+                  key={notification._id} 
+                  style={notification.read ? notificationItemStyle : unreadNotificationStyle}
+                >
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'flex-start'
+                  }}>
+                    <div>
+                      <h3 style={notificationTitleStyle}>{notification.title}</h3>
+                      <p style={notificationMessageStyle}>{notification.message}</p>
+                      <p style={notificationDateStyle}>
+                        {format(new Date(notification.createdAt), 'MMM d, yyyy h:mm a')}
+                      </p>
+                    </div>
                     {!notification.read && (
                       <button
                         onClick={() => markNotificationAsRead(notification._id)}
-                        className="text-xs text-gray-600 hover:text-gray-800"
+                        style={secondaryButtonStyle}
                       >
-                        Mark as read
+                        Mark as Read
                       </button>
                     )}
                   </div>
                 </div>
-              </div>
-            ))}
-            {notifications.length > 5 && (
-              <div className="p-3 text-center">
-                <button 
-                  onClick={() => {
-                    // TODO: Implement a full notifications page
-                    toast.success('Viewing all notifications will be available soon!');
-                  }}
-                  className="text-sm text-blue-600 hover:text-blue-800"
-                >
-                  View all notifications
-                </button>
-              </div>
-            )}
+              ))}
+            </div>
+          )}
+        </div>
+        
+        {/* Applications Section */}
+        <div>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '1rem'
+          }}>
+            <h2 style={subHeadingStyle}>My Job Applications</h2>
+            <Link href="/jobs" style={buttonStyle}>
+              Browse More Jobs
+            </Link>
           </div>
-        )}
+          
+          {/* Filters */}
+          <div style={filterContainerStyle}>
+            <button 
+              onClick={() => {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('status', 'all');
+                window.history.pushState({}, '', newUrl.toString());
+                router.push(`/dashboard?status=all`);
+              }}
+              style={statusFilter === 'all' ? activeFilterButtonStyle : filterButtonStyle}
+            >
+              All
+            </button>
+            <button 
+              onClick={() => {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('status', 'pending');
+                window.history.pushState({}, '', newUrl.toString());
+                router.push(`/dashboard?status=pending`);
+              }}
+              style={statusFilter === 'pending' ? activeFilterButtonStyle : filterButtonStyle}
+            >
+              Pending
+            </button>
+            <button 
+              onClick={() => {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('status', 'reviewed');
+                window.history.pushState({}, '', newUrl.toString());
+                router.push(`/dashboard?status=reviewed`);
+              }}
+              style={statusFilter === 'reviewed' ? activeFilterButtonStyle : filterButtonStyle}
+            >
+              Reviewed
+            </button>
+            <button 
+              onClick={() => {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('status', 'interview');
+                window.history.pushState({}, '', newUrl.toString());
+                router.push(`/dashboard?status=interview`);
+              }}
+              style={statusFilter === 'interview' ? activeFilterButtonStyle : filterButtonStyle}
+            >
+              Interview
+            </button>
+            <button 
+              onClick={() => {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('status', 'hired');
+                window.history.pushState({}, '', newUrl.toString());
+                router.push(`/dashboard?status=hired`);
+              }}
+              style={statusFilter === 'hired' ? activeFilterButtonStyle : filterButtonStyle}
+            >
+              Hired
+            </button>
+            <button 
+              onClick={() => {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('status', 'rejected');
+                window.history.pushState({}, '', newUrl.toString());
+                router.push(`/dashboard?status=rejected`);
+              }}
+              style={statusFilter === 'rejected' ? activeFilterButtonStyle : filterButtonStyle}
+            >
+              Rejected
+            </button>
+          </div>
+          
+          {/* Loading state */}
+          {isLoading ? (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              padding: '2rem'
+            }}>
+              <div style={loadingSpinnerStyle}></div>
+              <style jsx>{`
+                @keyframes spin {
+                  0% { transform: rotate(0deg); }
+                  100% { transform: rotate(360deg); }
+                }
+              `}</style>
+            </div>
+          ) : error ? (
+            <div style={{
+              backgroundColor: '#fef2f2',
+              border: '1px solid #fee2e2',
+              color: '#b91c1c',
+              padding: '1rem',
+              borderRadius: '0.25rem',
+              marginBottom: '1rem'
+            }}>
+              {error}
+            </div>
+          ) : applications.length === 0 ? (
+            <div style={emptyStateStyle}>
+              <p style={{ marginBottom: '1rem' }}>You haven't applied to any jobs yet.</p>
+              <Link href="/jobs" style={buttonStyle}>
+                Browse Jobs
+              </Link>
+            </div>
+          ) : (
+            <div>
+              {applications
+                .filter(app => statusFilter === 'all' || app.status === statusFilter)
+                .map(application => (
+                  <div key={application._id} style={applicationCardStyle}>
+                    <div style={applicationHeaderStyle}>
+                      <h3 style={applicationTitleStyle}>{application.jobId.title}</h3>
+                      <p style={applicationCompanyStyle}>{application.jobId.companyName}</p>
+                      
+                      <div style={applicationMetaStyle}>
+                        <span style={applicationMetaItemStyle}>{application.jobId.location}</span>
+                        <span style={applicationMetaItemStyle}>
+                          Applied on {format(new Date(application.createdAt), 'MMM d, yyyy')}
+                        </span>
+                      </div>
+                      
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        marginTop: '0.5rem'
+                      }}>
+                        <span style={applicationStatusStyle(application.status)}>
+                          {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+                        </span>
+                        
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button 
+                            onClick={() => openHistoryModal(application)}
+                            style={secondaryButtonStyle}
+                          >
+                            View History
+                          </button>
+                          <Link 
+                            href={`/jobs/${application.jobId._id}`}
+                            style={buttonStyle}
+                          >
+                            View Job
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
       </div>
       
-      {/* Applications Table */}
-      <h2 className="text-xl font-semibold mb-4">Job Applications</h2>
-      
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : error ? (
-        <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
-          {error}
-        </div>
-      ) : applications.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
-          <p className="text-gray-500 mb-4">You haven't applied to any jobs yet.</p>
-          <Link href="/jobs" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            Browse Jobs
-          </Link>
-        </div>
-      ) : (
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Job
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Company
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Applied On
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {applications.map((application) => (
-                  <tr 
-                    key={application._id} 
-                    className={!application.notificationRead ? 'bg-blue-50' : ''}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        <Link href={`/jobs/${application.jobId._id}`} className="hover:text-blue-600">
-                          {application.jobId.title}
-                        </Link>
-                      </div>
-                      <div className="text-sm text-gray-500">{application.jobId.location}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{application.jobId.companyName}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(application.status)}`}>
-                        {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                      </span>
-                      {!application.notificationRead && (
-                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                          New
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {format(new Date(application.createdAt), 'MMM d, yyyy')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => openHistoryModal(application)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        View Details
-                      </button>
-                      <Link href={`/jobs/${application.jobId._id}`} className="text-gray-600 hover:text-gray-900">
-                        View Job
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-      
-      {/* Status History Modal */}
+      {/* Application History Modal */}
       {isHistoryModalOpen && selectedApplication && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-          <div className="relative bg-white rounded-lg shadow-xl mx-auto max-w-2xl w-full">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold text-gray-900">
-                  Application Details
-                </h3>
-                <button
-                  onClick={closeHistoryModal}
-                  className="text-gray-400 hover:text-gray-500 focus:outline-none"
-                >
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              
-              <div className="mb-6">
-                <h4 className="text-lg font-medium text-gray-900 mb-2">
+        <div style={modalOverlayStyle}>
+          <div style={modalContentStyle}>
+            <div style={modalHeaderStyle}>
+              <h3 style={{ 
+                fontSize: '1.125rem', 
+                fontWeight: '600', 
+                color: '#111827'
+              }}>
+                Application History
+              </h3>
+              <button 
+                onClick={closeHistoryModal}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '1.5rem',
+                  color: '#6b7280'
+                }}
+              >
+                &times;
+              </button>
+            </div>
+            
+            <div style={modalBodyStyle}>
+              <div style={{ marginBottom: '1rem' }}>
+                <h4 style={{ 
+                  fontSize: '1rem', 
+                  fontWeight: '600', 
+                  color: '#d71921',
+                  marginBottom: '0.25rem'
+                }}>
                   {selectedApplication.jobId.title}
                 </h4>
-                <p className="text-gray-600">
+                <p style={{ 
+                  fontSize: '0.875rem', 
+                  color: '#4b5563',
+                  marginBottom: '0.5rem'
+                }}>
                   {selectedApplication.jobId.companyName} • {selectedApplication.jobId.location}
                 </p>
-                <div className="mt-2">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(selectedApplication.status)}`}>
-                    {selectedApplication.status.charAt(0).toUpperCase() + selectedApplication.status.slice(1)}
-                  </span>
-                </div>
+                <p style={{ 
+                  fontSize: '0.75rem', 
+                  color: '#6b7280'
+                }}>
+                  Applied on {format(new Date(selectedApplication.createdAt), 'MMMM d, yyyy')}
+                </p>
               </div>
               
-              <div className="mb-6">
-                <h4 className="text-md font-medium text-gray-900 mb-2">
-                  Status History
+              <div style={{ marginBottom: '1rem' }}>
+                <h4 style={{ 
+                  fontSize: '0.875rem', 
+                  fontWeight: '600', 
+                  color: '#111827',
+                  marginBottom: '0.5rem'
+                }}>
+                  Current Status
                 </h4>
-                {selectedApplication.statusHistory && selectedApplication.statusHistory.length > 0 ? (
-                  <div className="border-l-2 border-gray-200 pl-4 space-y-4">
+                <span style={applicationStatusStyle(selectedApplication.status)}>
+                  {selectedApplication.status.charAt(0).toUpperCase() + selectedApplication.status.slice(1)}
+                </span>
+              </div>
+              
+              {selectedApplication.statusHistory && selectedApplication.statusHistory.length > 0 && (
+                <div>
+                  <h4 style={{ 
+                    fontSize: '0.875rem', 
+                    fontWeight: '600', 
+                    color: '#111827',
+                    marginBottom: '0.5rem'
+                  }}>
+                    Status Timeline
+                  </h4>
+                  
+                  <div style={timelineStyle}>
                     {selectedApplication.statusHistory.map((history, index) => (
-                      <div key={index} className="relative">
-                        <div className="absolute -left-6 mt-1 w-4 h-4 rounded-full bg-blue-500"></div>
+                      <div key={index} style={timelineItemStyle}>
+                        <div style={timelineDotStyle(history.status)}></div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            Status changed to <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(history.status)}`}>
-                              {history.status.charAt(0).toUpperCase() + history.status.slice(1)}
-                            </span>
+                          <p style={{ 
+                            fontSize: '0.875rem', 
+                            fontWeight: '500', 
+                            color: '#111827',
+                            marginBottom: '0.25rem'
+                          }}>
+                            {history.status.charAt(0).toUpperCase() + history.status.slice(1)}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {format(new Date(history.date), 'MMM d, yyyy h:mm a')}
+                          <p style={{ 
+                            fontSize: '0.75rem', 
+                            color: '#6b7280',
+                            marginBottom: '0.25rem'
+                          }}>
+                            {format(new Date(history.date), 'MMMM d, yyyy h:mm a')}
                           </p>
                           {history.notes && (
-                            <p className="text-sm text-gray-600 mt-1">
-                              <span className="font-medium">Note:</span> {history.notes}
+                            <p style={{ 
+                              fontSize: '0.875rem', 
+                              color: '#4b5563',
+                              backgroundColor: '#f3f4f6',
+                              padding: '0.5rem',
+                              borderRadius: '0.25rem'
+                            }}>
+                              {history.notes}
                             </p>
                           )}
                         </div>
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    No status updates yet. Your application is still being processed.
-                  </p>
-                )}
-              </div>
-              
-              <div className="flex justify-end">
-                <button
-                  onClick={closeHistoryModal}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none"
-                >
-                  Close
-                </button>
-              </div>
+                </div>
+              )}
+            </div>
+            
+            <div style={modalFooterStyle}>
+              <button 
+                onClick={closeHistoryModal}
+                style={secondaryButtonStyle}
+              >
+                Close
+              </button>
+              <Link 
+                href={`/jobs/${selectedApplication.jobId._id}`}
+                style={buttonStyle}
+              >
+                View Job Details
+              </Link>
             </div>
           </div>
         </div>

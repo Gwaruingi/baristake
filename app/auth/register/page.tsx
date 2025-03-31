@@ -10,7 +10,15 @@ export default async function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '48px 24px',
+      backgroundColor: '#f9fafb'
+    }}>
       <RegisterForm />
     </div>
   );

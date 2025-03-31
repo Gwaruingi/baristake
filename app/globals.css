@@ -114,6 +114,23 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Reed.co.uk inspired styles */
+.reed-input {
+  @apply pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-[#d71921] focus:border-transparent;
+}
+
+.reed-button {
+  @apply bg-[#d71921] hover:bg-[#b5141b] text-white font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out;
+}
+
+.reed-select {
+  @apply block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-[#d71921] focus:border-transparent;
+}
+
+.reed-job-card {
+  @apply bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 border-l-4 border-[#d71921];
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

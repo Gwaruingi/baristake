@@ -5,6 +5,14 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { 
+  ArrowLeft, 
+  AlertCircle, 
+  CheckCircle, 
+  AlertTriangle, 
+  Upload, 
+  FileText 
+} from 'lucide-react';
 
 interface Salary {
   min: number;
@@ -215,7 +223,12 @@ export default function JobApplicationPage({ params }: { params: { jobId: string
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: 'calc(100vh - 60px)' 
+      }}>
         <LoadingSpinner />
       </div>
     );
@@ -223,111 +236,204 @@ export default function JobApplicationPage({ params }: { params: { jobId: string
 
   if (!job) {
     return (
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-8">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-700">Job not found or no longer available.</p>
-            </div>
-          </div>
+      <div style={{ 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        padding: '24px 16px' 
+      }}>
+        <div style={{ 
+          backgroundColor: '#FEF2F2', 
+          borderLeft: '4px solid #F87171', 
+          padding: '16px', 
+          marginBottom: '24px',
+          display: 'flex',
+          alignItems: 'flex-start'
+        }}>
+          <AlertCircle size={20} style={{ color: '#F87171', marginRight: '12px', flexShrink: 0 }} />
+          <p style={{ fontSize: '14px', color: '#B91C1C' }}>Job not found or no longer available.</p>
         </div>
-        <Link href="/jobs" className="text-blue-600 hover:text-blue-800">
-          ← Back to all jobs
+        <Link href="/jobs" style={{ 
+          color: '#DC2626', 
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          width: 'fit-content'
+        }}>
+          <ArrowLeft size={16} style={{ marginRight: '8px' }} />
+          Back to all jobs
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <Link href={`/jobs/${job._id}`} className="text-blue-600 hover:text-blue-800 mb-8 inline-block">
-        ← Back to job details
+    <div style={{ 
+      maxWidth: '1200px', 
+      margin: '0 auto', 
+      padding: '24px 16px' 
+    }}>
+      <Link href={`/jobs/${job._id}`} style={{ 
+        color: '#DC2626', 
+        textDecoration: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        width: 'fit-content',
+        marginBottom: '24px'
+      }}>
+        <ArrowLeft size={16} style={{ marginRight: '8px' }} />
+        Back to job details
       </Link>
       
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <h1 className="text-2xl font-bold text-gray-900">Apply for {job.title}</h1>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">{job.companyName} • {job.location}</p>
+      <div style={{ 
+        backgroundColor: 'white', 
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)', 
+        borderRadius: '8px',
+        overflow: 'hidden'
+      }}>
+        <div style={{ 
+          padding: '20px 24px',
+          borderBottom: '1px solid #E5E7EB'
+        }}>
+          <h1 style={{ 
+            fontSize: '24px', 
+            fontWeight: 'bold', 
+            color: '#111827',
+            marginBottom: '8px'
+          }}>Apply for {job.title}</h1>
+          <p style={{ 
+            fontSize: '14px', 
+            color: '#6B7280'
+          }}>{job.companyName} • {job.location}</p>
         </div>
         
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-6 mb-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            </div>
+          <div style={{ 
+            backgroundColor: '#FEF2F2', 
+            borderLeft: '4px solid #F87171', 
+            padding: '16px', 
+            margin: '0 24px 16px',
+            display: 'flex',
+            alignItems: 'flex-start'
+          }}>
+            <AlertCircle size={20} style={{ color: '#F87171', marginRight: '12px', flexShrink: 0 }} />
+            <p style={{ fontSize: '14px', color: '#B91C1C' }}>{error}</p>
           </div>
         )}
         
         {success && (
-          <div className="bg-green-50 border-l-4 border-green-400 p-4 mx-6 mb-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-green-700">{success}</p>
-              </div>
-            </div>
+          <div style={{ 
+            backgroundColor: '#F0FDF4', 
+            borderLeft: '4px solid #34D399', 
+            padding: '16px', 
+            margin: '0 24px 16px',
+            display: 'flex',
+            alignItems: 'flex-start'
+          }}>
+            <CheckCircle size={20} style={{ color: '#34D399', marginRight: '12px', flexShrink: 0 }} />
+            <p style={{ fontSize: '14px', color: '#047857' }}>{success}</p>
           </div>
         )}
         
-        <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <h2 className="text-lg font-medium text-gray-900">Your Information</h2>
-              <p className="mt-1 text-sm text-gray-500">
+        <div style={{ padding: '24px' }}>
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '32px' }}>
+              <h2 style={{ 
+                fontSize: '18px', 
+                fontWeight: '500', 
+                color: '#111827', 
+                marginBottom: '8px' 
+              }}>Your Information</h2>
+              <p style={{ 
+                fontSize: '14px', 
+                color: '#6B7280',
+                marginBottom: '16px'
+              }}>
                 This information will be used from your profile.
               </p>
               
-              <div className="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                gap: '16px',
+                marginBottom: '16px'
+              }}>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
-                  <div className="mt-1 p-2 border border-gray-300 rounded-md bg-gray-50">
+                  <label style={{ 
+                    display: 'block', 
+                    fontSize: '14px', 
+                    fontWeight: '500', 
+                    color: '#374151',
+                    marginBottom: '4px'
+                  }}>Name</label>
+                  <div style={{ 
+                    padding: '8px 12px', 
+                    border: '1px solid #D1D5DB', 
+                    borderRadius: '4px', 
+                    backgroundColor: '#F9FAFB',
+                    fontSize: '14px'
+                  }}>
                     {profile?.name || session?.user?.name || 'Not available'}
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
-                  <div className="mt-1 p-2 border border-gray-300 rounded-md bg-gray-50">
+                  <label style={{ 
+                    display: 'block', 
+                    fontSize: '14px', 
+                    fontWeight: '500', 
+                    color: '#374151',
+                    marginBottom: '4px'
+                  }}>Email</label>
+                  <div style={{ 
+                    padding: '8px 12px', 
+                    border: '1px solid #D1D5DB', 
+                    borderRadius: '4px', 
+                    backgroundColor: '#F9FAFB',
+                    fontSize: '14px'
+                  }}>
                     {profile?.email || session?.user?.email || 'Not available'}
                   </div>
                 </div>
               </div>
               
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700">Resume from Profile</label>
-                <div className="mt-1">
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: '14px', 
+                  fontWeight: '500', 
+                  color: '#374151',
+                  marginBottom: '4px'
+                }}>Resume from Profile</label>
+                <div style={{ marginTop: '4px' }}>
                   {profile?.resume ? (
-                    <div className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-2 text-sm text-gray-700">Resume available from your profile</span>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center'
+                    }}>
+                      <CheckCircle size={16} style={{ color: '#10B981', marginRight: '8px' }} />
+                      <span style={{ 
+                        fontSize: '14px', 
+                        color: '#374151'
+                      }}>Resume available from your profile</span>
                     </div>
                   ) : (
-                    <div className="flex items-center">
-                      <svg className="h-5 w-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-2 text-sm text-gray-700">
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center'
+                    }}>
+                      <AlertTriangle size={16} style={{ color: '#FBBF24', marginRight: '8px' }} />
+                      <span style={{ 
+                        fontSize: '14px', 
+                        color: '#374151'
+                      }}>
                         No resume in your profile. <strong>You must upload a CV below to apply.</strong>
                       </span>
-                      <Link href="/profile" className="ml-2 text-xs text-blue-600 hover:text-blue-800">
+                      <Link href="/profile" style={{ 
+                        marginLeft: '8px', 
+                        fontSize: '12px', 
+                        color: '#DC2626',
+                        textDecoration: 'none'
+                      }}>
                         Update Profile
                       </Link>
                     </div>
@@ -336,73 +442,150 @@ export default function JobApplicationPage({ params }: { params: { jobId: string
               </div>
             </div>
             
-            <div>
-              <h2 className="text-lg font-medium text-gray-900">Additional Information</h2>
+            <div style={{ marginBottom: '32px' }}>
+              <h2 style={{ 
+                fontSize: '18px', 
+                fontWeight: '500', 
+                color: '#111827', 
+                marginBottom: '8px' 
+              }}>Additional Information</h2>
               
-              <div className="mt-4">
-                <label htmlFor="cv" className="block text-sm font-medium text-gray-700">
+              <div style={{ marginBottom: '16px' }}>
+                <label htmlFor="cv" style={{ 
+                  display: 'block', 
+                  fontSize: '14px', 
+                  fontWeight: '500', 
+                  color: '#374151',
+                  marginBottom: '4px'
+                }}>
                   Upload CV {cvRequired ? '(Required)' : '(Optional)'}
                 </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                  <div className="space-y-1 text-center">
-                    <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    <div className="flex text-sm text-gray-600">
-                      <label htmlFor="cv" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                        <span>Upload a file</span>
-                        <input id="cv" name="cv" type="file" className="sr-only" onChange={handleCvChange} accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+                <div style={{ 
+                  display: 'flex',
+                  justifyContent: 'center',
+                  padding: '24px',
+                  border: '2px dashed #D1D5DB',
+                  borderRadius: '4px',
+                  marginTop: '4px'
+                }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <Upload size={40} style={{ 
+                      color: '#9CA3AF', 
+                      margin: '0 auto 12px' 
+                    }} />
+                    <div style={{ 
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center'
+                    }}>
+                      <label htmlFor="cv-upload" style={{ 
+                        color: '#DC2626',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        marginBottom: '8px'
+                      }}>
+                        Upload a file
                       </label>
-                      <p className="pl-1">or drag and drop</p>
+                      <input
+                        id="cv-upload"
+                        name="cv"
+                        type="file"
+                        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        onChange={handleCvChange}
+                        style={{ 
+                          width: '0.1px',
+                          height: '0.1px',
+                          opacity: 0,
+                          overflow: 'hidden',
+                          position: 'absolute',
+                          zIndex: -1
+                        }}
+                      />
+                      <p style={{ 
+                        fontSize: '12px', 
+                        color: '#6B7280'
+                      }}>
+                        PDF, DOC, or DOCX up to 5MB
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      PDF, DOC, DOCX up to 5MB
-                    </p>
+                    {cvFile && (
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginTop: '16px',
+                        padding: '8px 12px',
+                        backgroundColor: '#F3F4F6',
+                        borderRadius: '4px'
+                      }}>
+                        <FileText size={16} style={{ color: '#4B5563', marginRight: '8px' }} />
+                        <span style={{ 
+                          fontSize: '14px', 
+                          color: '#4B5563'
+                        }}>{cvFile.name}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-                {cvFile && (
-                  <p className="mt-2 text-sm text-gray-500">
-                    Selected file: {cvFile.name}
-                  </p>
-                )}
               </div>
               
-              <div className="mt-4">
-                <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-700">
+              <div>
+                <label htmlFor="coverLetter" style={{ 
+                  display: 'block', 
+                  fontSize: '14px', 
+                  fontWeight: '500', 
+                  color: '#374151',
+                  marginBottom: '4px'
+                }}>
                   Cover Letter (Optional)
                 </label>
-                <div className="mt-1">
-                  <textarea
-                    id="coverLetter"
-                    name="coverLetter"
-                    rows={4}
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    placeholder="Why are you interested in this position?"
-                    value={coverLetter}
-                    onChange={(e) => setCoverLetter(e.target.value)}
-                  />
-                </div>
+                <textarea
+                  id="coverLetter"
+                  name="coverLetter"
+                  rows={6}
+                  value={coverLetter}
+                  onChange={(e) => setCoverLetter(e.target.value)}
+                  placeholder="Write a brief cover letter explaining why you're a good fit for this position..."
+                  style={{ 
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #D1D5DB',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    lineHeight: '1.5',
+                    resize: 'vertical'
+                  }}
+                />
               </div>
             </div>
             
-            <div className="pt-5">
-              <div className="flex justify-end">
-                <Link
-                  href={`/jobs/${job._id}`}
-                  className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Cancel
-                </Link>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className={`ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
-                    submitting ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-                  }`}
-                >
-                  {submitting ? 'Submitting...' : 'Submit Application'}
-                </button>
-              </div>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center',
+              marginTop: '32px'
+            }}>
+              <button
+                type="submit"
+                disabled={submitting}
+                style={{
+                  backgroundColor: submitting ? '#F3F4F6' : '#DC2626',
+                  color: submitting ? '#9CA3AF' : 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '12px 24px',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  transition: 'background-color 0.2s',
+                  width: '100%',
+                  maxWidth: '300px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+              >
+                {submitting ? 'Submitting...' : 'Submit Application'}
+              </button>
             </div>
           </form>
         </div>

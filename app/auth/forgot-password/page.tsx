@@ -17,12 +17,50 @@ export default function ForgotPasswordPage() {
     }
   }, [session, status, router]);
 
+  // Styles
+  const pageStyle = {
+    minHeight: 'calc(100vh - 60px)',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '2rem 1rem',
+    backgroundColor: '#f9fafb'
+  };
+
+  const loadingContainerStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 'calc(100vh - 60px)',
+    backgroundColor: '#f9fafb'
+  };
+
+  const loadingSpinnerStyle = {
+    width: '2.5rem',
+    height: '2.5rem',
+    border: '0.25rem solid #f3f3f3',
+    borderTop: '0.25rem solid #d71921',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite'
+  };
+
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div style={loadingContainerStyle}>
+        <div style={loadingSpinnerStyle}></div>
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <div style={pageStyle}>
       <ForgotPasswordForm />
     </div>
   );

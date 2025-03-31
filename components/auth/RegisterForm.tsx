@@ -81,126 +81,303 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-md space-y-8">
+    <div style={{
+      width: '100%',
+      maxWidth: '500px',
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      padding: '32px',
+    }}>
       <div>
-        <h2 className="text-center text-3xl font-bold tracking-tight">
+        <h2 style={{
+          textAlign: 'center',
+          fontSize: '24px',
+          fontWeight: '700',
+          marginBottom: '24px',
+          color: '#333'
+        }}>
           Create your account
         </h2>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 rounded-md p-4">
+        <div style={{
+          backgroundColor: '#fee2e2',
+          color: '#b91c1c',
+          padding: '12px',
+          borderRadius: '6px',
+          marginBottom: '16px',
+          fontSize: '14px'
+        }}>
           {error}
         </div>
       )}
 
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="name" className="block text-sm font-medium text-gray-700">
+      <form style={{ marginTop: '24px' }} onSubmit={handleSubmit(onSubmit)}>
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <Label htmlFor="name" style={{
+              display: 'block',
+              marginBottom: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#333'
+            }}>
               Full Name
             </Label>
             <Input
               {...register('name')}
               type="text"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               placeholder="John Doe"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
             />
             {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+              <p style={{
+                marginTop: '4px',
+                fontSize: '13px',
+                color: '#e11d48'
+              }}>
+                {errors.name.message}
+              </p>
             )}
           </div>
 
-          <div>
-            <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <div style={{ marginBottom: '16px' }}>
+            <Label htmlFor="email" style={{
+              display: 'block',
+              marginBottom: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#333'
+            }}>
               Email address
             </Label>
             <Input
               {...register('email')}
               type="email"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               placeholder="you@example.com"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
             />
             {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              <p style={{
+                marginTop: '4px',
+                fontSize: '13px',
+                color: '#e11d48'
+              }}>
+                {errors.email.message}
+              </p>
             )}
           </div>
 
-          <div>
-            <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <div style={{ marginBottom: '16px' }}>
+            <Label htmlFor="password" style={{
+              display: 'block',
+              marginBottom: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#333'
+            }}>
               Password
             </Label>
             <Input
               {...register('password')}
               type="password"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
             />
             {errors.password && (
-              <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              <p style={{
+                marginTop: '4px',
+                fontSize: '13px',
+                color: '#e11d48'
+              }}>
+                {errors.password.message}
+              </p>
             )}
           </div>
 
-          <div>
-            <Label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+          <div style={{ marginBottom: '16px' }}>
+            <Label htmlFor="confirmPassword" style={{
+              display: 'block',
+              marginBottom: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#333'
+            }}>
               Confirm Password
             </Label>
             <Input
               {...register('confirmPassword')}
               type="password"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
             />
             {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+              <p style={{
+                marginTop: '4px',
+                fontSize: '13px',
+                color: '#e11d48'
+              }}>
+                {errors.confirmPassword.message}
+              </p>
             )}
           </div>
 
-          <div>
-            <Label htmlFor="role" className="block text-sm font-medium text-gray-700">
+          <div style={{ marginBottom: '16px' }}>
+            <Label htmlFor="role" style={{
+              display: 'block',
+              marginBottom: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#333'
+            }}>
               Account Type
             </Label>
             <select
               {...register('role')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '15px',
+                backgroundColor: 'white',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
             >
               <option value="jobseeker">Job Seeker</option>
               <option value="company">Company</option>
             </select>
             {errors.role && (
-              <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>
+              <p style={{
+                marginTop: '4px',
+                fontSize: '13px',
+                color: '#e11d48'
+              }}>
+                {errors.role.message}
+              </p>
             )}
           </div>
 
-          <div>
-            <Label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
+          <div style={{ marginBottom: '16px' }}>
+            <Label htmlFor="companyName" style={{
+              display: 'block',
+              marginBottom: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#333'
+            }}>
               Company Name
             </Label>
             <Input
               {...register('companyName')}
               type="text"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               placeholder="TechCorp"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '15px',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
             />
             {errors.companyName && (
-              <p className="mt-1 text-sm text-red-600">{errors.companyName.message}</p>
+              <p style={{
+                marginTop: '4px',
+                fontSize: '13px',
+                color: '#e11d48'
+              }}>
+                {errors.companyName.message}
+              </p>
             )}
           </div>
         </div>
 
         <div>
-          <Button
+          <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            style={{
+              position: 'relative',
+              display: 'flex',
+              width: '100%',
+              justifyContent: 'center',
+              padding: '12px',
+              backgroundColor: '#5e2ced',
+              color: 'white',
+              fontSize: '15px',
+              fontWeight: '500',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              opacity: isLoading ? 0.7 : 1,
+              transition: 'background-color 0.2s',
+            }}
+            onMouseOver={(e) => {
+              if (!isLoading) e.currentTarget.style.backgroundColor = '#4a22b9';
+            }}
+            onMouseOut={(e) => {
+              if (!isLoading) e.currentTarget.style.backgroundColor = '#5e2ced';
+            }}
           >
             {isLoading ? <LoadingSpinner /> : 'Create account'}
-          </Button>
+          </button>
         </div>
       </form>
 
-      <div className="text-sm text-center">
-        <p className="text-gray-600">
+      <div style={{ 
+        marginTop: '24px',
+        textAlign: 'center',
+        fontSize: '14px',
+        color: '#4b5563'
+      }}>
+        <p>
           Already have an account?{' '}
-          <a href="/auth/signin" className="font-medium text-indigo-600 hover:text-indigo-500">
+          <a 
+            href="/auth/signin" 
+            style={{
+              fontWeight: '500',
+              color: '#5e2ced',
+              textDecoration: 'none',
+              transition: 'color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.color = '#4a22b9'}
+            onMouseOut={(e) => e.currentTarget.style.color = '#5e2ced'}
+          >
             Sign in
           </a>
         </p>

@@ -7,12 +7,11 @@ module.exports = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      colors: {
+        'reed-red': '#d71921',
+        'reed-red-dark': '#b5141b',
       },
     },
   },
-  plugins: [],
-};
+  plugins: [require('@tailwindcss/forms')],
+}
